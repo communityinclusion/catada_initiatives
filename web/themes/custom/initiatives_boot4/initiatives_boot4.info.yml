@@ -1,4 +1,4 @@
-name: mpte Bootstrap 4 Subtheme
+name: initiatives Bootstrap 4 Subtheme
 type: theme
 description: 'Basic structure for a Bootstrap Barrio SubTheme.'
 # version: VERSION
@@ -6,8 +6,8 @@ description: 'Basic structure for a Bootstrap Barrio SubTheme.'
 base theme: bootstrap_barrio
 
 libraries:
-  - mpte_boot4/bootstrap_cdn
-  - mpte_boot4/global-styling
+  - initiatives_boot4/bootstrap_cdn
+  - initiatives_boot4/global-styling
 
 regions:
   top_header: 'Top Header'

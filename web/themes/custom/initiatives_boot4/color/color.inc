@@ -115,7 +115,7 @@ $info = [
   ],
 
   // Preview files.
-  'preview_library' => 'mpte_boot4/color.preview',
+  'preview_library' => 'initiatives_boot4/color.preview',
   'preview_html' => 'color/preview.html',
 
   // Attachments.
