@@ -112,7 +112,7 @@
         "drupal/views_data_export": "^1.0@beta",
         "drupal/webform": "^5.1",
         "drupal/workflow": "^1.1",
-        "drush/drush": "^9.0.0",
+        "drush/drush": "^10.3",
         "symfony/debug": "^3.4.0",
         "symfony/filesystem": "^3.4",
         "symfony/finder": "^3.4",
