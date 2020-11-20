@@ -50,6 +50,90 @@
 
    #block-schooldistricts .distNote { font-size: 85%; font-style: italic; }
    label[for="partnerships-General-education-staff-including-guidance-counselors"],label[for="partners-General-education-staff-including-guidance-counselors"] { display: block; padding-left: 22px; margin-top: -24px;}
-   header a.navbar-brand { margin-top: 18px; width: 250px;float: left;}
+   header a.navbar-brand { margin-top: 18px; width: 575px;}
+   #header #navbar-main {background-color: #fff;}
+   .red {
+	background-color: #b22d27
+}
+.redf {
+	color: #b22d27
+}
+.blue {
+	background-color: #00b4e6
+}
+.bluef {
+	color: #00b4e6
+}
+.green {
+	background-color: #5d9732
+}
+.greenf {
+	color: #5d9732
+}
+.dkblue {
+	background-color: #256496
+}
+.dkbluef {
+	color: #256496
+}
+.bg-dark {
+	background-color: #333!important;
+}
+.bg-darkf {
+	color: #333!important;
+}
+@media only screen and (min-width: 990px) {
+	#block-navigation nav li {
+		width: calc(100% / 4);
+	}
+}
+#block-navigation nav li {
+	font-size: 18px;
+	font-weight: 700;
+	padding-right: 5px;
+}
+#block-navigation nav li a:hover {
+	color: #fff;
+	opacity: 1
+}
+.navbar-dark .navbar-nav .nav-link:focus, .navbar-dark .navbar-nav .nav-link:hover, .navbar-dark .navbar-nav .nav-link {
+	color: rgba(255, 255, 255, 1.0);
+}
+
+.dropdown-toggle::after {
+       border-top: .6em solid;
+    border-right: .5em solid transparent;
+    border-bottom: 0;
+    border-left: .5em solid transparent;
+}
+/*-------Footer--------*/
+#footer {
+
+
+}
+.footer-copyright {
+	background-color: #0073AE;
+	color: #ffffff;
+	padding-top: 30px;
+	padding-bottom: 20px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 16px;
+	line-height: 24px;
+}
+.footer-copyright a {
+	color: #ffffff;
+	font-weight: 700
+}
+
+
+.footer-partners {
+	font-size: 12px;
+	line-height: 14px;
+	  padding: 20px 0 0;
+	      border: 15px #0073AE solid;
+}
+#page-wrapper .site-footer {background-color: #0077af;}
+.site-footer .footer-partners {background-color: #fff;}
+.site-footer .content .small {color: #333;margin-left: 25px;}
 
     
