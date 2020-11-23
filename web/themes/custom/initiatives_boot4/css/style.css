@@ -137,5 +137,19 @@
 .site-footer .content .small {color: #333;margin-left: 25px;}
 #page .site-footer { padding-top: 0;}
 #sidebar_first aside.section .block { background-color: #fff; border: 1px solid #256496;}
+#sidebar_first input.facets-checkbox {
+	margin-right:5px;
+}
+
+#sidebar_first .facets-widget-checkbox ul {
+	list-style-type:none;
+}
+.contextual-region.block-facet--checkbox .facet-item label {
+
+    padding-left: 10px;
+    margin-top: -24px;
+
+}
+.contextual-region.block-facet--checkbox .facet-item label[for="at_activities-63"],.contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-75"] {padding-left: 22px;}
 
     
