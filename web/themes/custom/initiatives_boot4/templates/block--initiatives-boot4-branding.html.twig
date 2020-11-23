@@ -14,7 +14,7 @@
 #}
 {% set attributes = attributes.addClass('site-branding') %}
   {% if site_logo or site_name %}
-    <h1><a href="https://catada.info" title="{{ 'Home'|t }}" rel="home" class="navbar-brand" >
+    <h1 class="container"><a href="https://catada.info" title="{{ 'Home'|t }}" rel="home" class="navbar-brand" >
       {% if site_logo %}
         <img src="/sites/default/files/catada-logo.png" alt="{{ 'Home'|t }}" class="img-fluid d-inline-block align-top" />
       {% endif %}
