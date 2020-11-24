@@ -150,10 +150,9 @@
    
 
 }
-.contextual-region.block-facet--checkbox .facet-item label[for="at_activities-63"], .contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-75"], .contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-68"],.contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-72"]{padding-left: 22px;
-    margin-top: -24px;}
-.contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-73"] 
-{padding-left: 22px;}
+.contextual-region.block-facet--checkbox .facet-item label[for="at_activities-63"], .contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-75"], .contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-68"],.contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-72"],.contextual-region.block-facet--checkbox .facet-item label[for="focus_areas-73"]{padding-left: 22px;
+margin-top: -24px;}
+ 
 #main-wrapper #main {padding-top: 15px;}
 ul.js-facets-checkbox-links {padding-left: 0;}
 #sidebar_first.sidebar .block {padding: 15px 6px;}
