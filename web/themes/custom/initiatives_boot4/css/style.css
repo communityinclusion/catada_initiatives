@@ -151,7 +151,8 @@
 
 } */
 #sidebar_first .block-facet--checkbox .facet-item label[for="at_activities-63"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-68"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-72"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-73"]{padding-left: 22px;
-margin-top: -24px;}
+margin-bottom: 24px;}
+#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"] {margin-bottom: 55px;}
  
 #main-wrapper #main {padding-top: 15px;}
 ul.js-facets-checkbox-links {padding-left: 0;}
