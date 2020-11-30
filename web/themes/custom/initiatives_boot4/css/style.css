@@ -136,7 +136,7 @@
 .site-footer .footer-partners {background-color: #fff;}
 .site-footer .content .small {color: #333;margin-left: 25px;}
 #page .site-footer { padding-top: 0;}
-#sidebar_first aside.section .block { background-color:#F0F0F0 ; }
+#sidebar_first aside.section .block { background-color:#F0F0F0 ; min-width: 250px;}
 #sidebar_first input.facets-checkbox {
 	margin-right:5px;
 }
