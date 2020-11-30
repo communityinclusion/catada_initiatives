@@ -159,4 +159,6 @@ ul.js-facets-checkbox-links {padding-left: 0;}
 .card-body .field--name-field-state {text-transform:uppercase;}
 .field--name-field-state.field--type-entity-reference {margin-bottom: 0;}
 .field--name-body.card-body {padding-left: 0;}
+.item-list h4.card-header {background-color: #fff;}
+.item-list h4.card-header a {color: #3b3b3b;}
     
