@@ -136,7 +136,7 @@
 .site-footer .footer-partners {background-color: #fff;}
 .site-footer .content .small {color: #333;margin-left: 25px;}
 #page .site-footer { padding-top: 0;}
-#sidebar_first aside.section .block { background-color: #fff; border: 1px solid #256496;}
+#sidebar_first aside.section .block { background-color:#F0F0F0 ; }
 #sidebar_first input.facets-checkbox {
 	margin-right:5px;
 }
@@ -161,4 +161,64 @@ ul.js-facets-checkbox-links {padding-left: 0;}
 .field--name-body.card-body {padding-left: 0;}
 .item-list h4.card-header {background-color: #fff;}
 .item-list h4.card-header a {color: #3b3b3b;}
-    
+/* 
+#sidebar_first input[type=checkbox] {
+    position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
+}
+
+#sidebar_first input[type=checkbox] + label {
+    padding-left:28px;
+    height:22px; 
+    display:inline-block;
+    line-height:22px;
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    font-size:22px;
+    vertical-align:middle;
+    cursor:pointer;
+
+}
+
+#sidebar_first input[type=checkbox]:checked + label {
+    background-position: 0 -22px;
+}
+#sidebar_first .facet-item label {
+background-image:url(../images/custom_checkbox.png);
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+} */
+
+
+#sidebar_first input[type=checkbox] {
+    position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
+}
+
+#sidebar_first input[type=checkbox] + label {
+    padding-left:22px;
+    height:16px; 
+    display:inline-block;
+    line-height:16px;
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    font-size:16px;
+    vertical-align:middle;
+    cursor:pointer;
+
+}
+
+#sidebar_first input[type=checkbox]:checked + label {
+    background-position: 0 -16px;
+}
+#sidebar_first .facet-item label {
+background-image:url(../images/custom_checkbox.png);
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
