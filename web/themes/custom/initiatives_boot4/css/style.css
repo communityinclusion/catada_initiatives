@@ -151,8 +151,8 @@
 
 } */
 #sidebar_first .block-facet--checkbox .facet-item label[for="at_activities-63"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-68"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-72"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-73"]{padding-left: 22px;
-margin-bottom: 24px;}
-#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"] {margin-bottom: 55px;}
+margin-bottom: 27px;}
+#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"] {margin-bottom: 66px;}
  
 #main-wrapper #main {padding-top: 15px;}
 ul.js-facets-checkbox-links {padding-left: 0;}
@@ -162,37 +162,6 @@ ul.js-facets-checkbox-links {padding-left: 0;}
 .field--name-body.card-body {padding-left: 0;}
 .item-list h4.card-header {background-color: #fff;}
 .item-list h4.card-header a {color: #3b3b3b;}
-/* 
-#sidebar_first input[type=checkbox] {
-    position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
-}
-
-#sidebar_first input[type=checkbox] + label {
-    padding-left:28px;
-    height:22px; 
-    display:inline-block;
-    line-height:22px;
-    background-repeat:no-repeat;
-    background-position: 0 0;
-    font-size:22px;
-    vertical-align:middle;
-    cursor:pointer;
-
-}
-
-#sidebar_first input[type=checkbox]:checked + label {
-    background-position: 0 -22px;
-}
-#sidebar_first .facet-item label {
-background-image:url(../images/custom_checkbox.png);
--webkit-touch-callout: none;
--webkit-user-select: none;
--khtml-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-} */
-
 
 #sidebar_first input[type=checkbox] {
     position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
@@ -202,7 +171,7 @@ user-select: none;
     padding-left:22px;
     height:16px; 
     display:inline-block;
-    line-height:16px;
+    line-height:19px;
     background-repeat:no-repeat;
     background-position: 0 0;
     font-size:16px;
