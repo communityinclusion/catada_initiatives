@@ -47,3 +47,8 @@ function initiatives_boot4_preprocess_breadcrumb(&$variables) {
     }
   }
 }
+function initiatives_boot4_theme_suggestions_field_alter(&$suggestions, $variables) {
+  $suggestions[] = 'field__' . 
+    $variables['element']['#field_name'] . '__' . 
+    $variables['element']['#view_mode'];
+}

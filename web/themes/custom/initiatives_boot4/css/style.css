@@ -156,4 +156,7 @@ margin-top: -24px;}
 #main-wrapper #main {padding-top: 15px;}
 ul.js-facets-checkbox-links {padding-left: 0;}
 #sidebar_first.sidebar .block {padding: 15px 6px;}
+.card-body .field--name-field-state {text-transform:uppercase;}
+.field--name-field-state.field--type-entity-reference {margin-bottom: 0;}
+.field--name-body.card-body {padding-left: 0;}
     
