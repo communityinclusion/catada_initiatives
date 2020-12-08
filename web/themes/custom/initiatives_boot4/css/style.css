@@ -196,3 +196,4 @@ background-position: 0 0;
 user-select: none;
 }
 span.facet-item__value {display: block;}
+li.facet-summary-item--facet span.facet-item__value {display: inline;}
