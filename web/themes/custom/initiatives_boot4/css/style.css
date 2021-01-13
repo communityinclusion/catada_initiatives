@@ -229,3 +229,7 @@ a.searchJump.homeShow {
 #home_header .btn-primary {background:#0077af;}
 #moreInitiative.collapse { display: none;}
 #moreInitiative.collapse.show {display: block;}
+#home_header [aria-expanded="false"] > .expanded,
+#home_header [aria-expanded="true"] > .collapsed {
+  display: none;
+}
