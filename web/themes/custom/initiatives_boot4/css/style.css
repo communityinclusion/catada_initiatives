@@ -218,13 +218,14 @@ a.searchJump.homeShow {
 .facetShow #block-yoursearch div.searchIntro {display: block;}
 .button {
     display: block;
-    width: 250px;
-    height: 45px;
+    width: 220px;
     background:#0077af;
-    padding: 10px;
+    padding: 7px;
     text-align: center;
     border-radius: 5px;
     color: white;
-    font-weight: bold;
     line-height: 20px;
 }
+#home_header .btn-primary {background:#0077af;}
+#moreInitiative.collapse { display: none;}
+#moreInitiative.collapse.show {display: block;}
