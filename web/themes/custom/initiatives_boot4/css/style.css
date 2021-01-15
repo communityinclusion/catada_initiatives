@@ -233,3 +233,23 @@ a.searchJump.homeShow {
 #home_header [aria-expanded="true"] > .collapsed {
   display: none;
 }
+.bracketer {
+    color:#256496;
+      background-color:#F9F8FD;
+      background-image: linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
+        linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
+        linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
+        linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39));
+      
+      background-repeat: no-repeat;
+      background-size: 8px 3px;
+      background-position: top left, top right, bottom left, bottom right;
+    
+      border: solid rgb(178, 45, 39);
+      text-align: justify;
+      border-width: 0 3px;
+      display: inline-block;
+      vertical-align: top;
+      padding: 25px 25px;
+      margin: 20px;
+    }
