@@ -1,4 +1,4 @@
-/** 
+/**
  * @file
  *
  * Subtheme specific CSS. Jenkins push 2
@@ -25,7 +25,7 @@
     .collapse:not(.show) {
 
         display: block;
-    
+
     }
 }
 #superfish-main ul {background-color: #fff; }
@@ -39,15 +39,15 @@
     #superfish-main > li:nth-child(5) > a {background-color: #3976B8; color:white;}
     .lilright {padding-left:3em;}
     #superfish-main > li {min-width: 180px; border:2px solid white;}
-  
+
     h1#siteTitle {width: 60%; float: left; margin-top: 20px; margin-bottom: 15px;}
     h3.site-name-slogan {margin-bottom: 40px;}
   }
-    
+
     /* Large devices (desktops, 992px and up) */
-    @media (min-width: 992px) { 
+    @media (min-width: 992px) {
         #superfish-main > li {min-width: 180px; border:2px solid white;}
-      
+
     }
     #superfish-main > li  > a {text-transform: uppercase; }
 
@@ -150,18 +150,41 @@
 /*#sidebar_first .block-facet--checkbox .facet-item label {
 
     padding-left: 10px;
-   
 
-} 
+
+}
 #sidebar_first .block-facet--checkbox .facet-item label[for="at_activities-63"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-68"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-72"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-73"]{padding-left: 22px;
 margin-bottom: 27px;}
 #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"] {margin-bottom: 66px;}
 */
- 
+
 #main-wrapper #main {padding-top: 15px;}
 ul.js-facets-checkbox-links {padding-left: 0;}
 #sidebar_first.sidebar .block {padding: 15px 6px;}
-.card-body .field--name-field-state {text-transform:uppercase;}
+
+
+/* Cards */
+
+.card-body {
+   padding: 0 1.25rem;
+   }
+.card-body .field--name-field-state {
+  text-transform:uppercase;
+  }
+
+.card-header {
+border:none;
+padding: .75rem 1.25rem;
+}
+
+.card {
+    border: none;
+}
+
+
+/* End Cards */
+
+
 .field--name-field-state.field--type-entity-reference {margin-bottom: 0;}
 .field--name-body.card-body {padding-left: 0;}
 .item-list h4.card-header {background-color: #fff;}
@@ -188,6 +211,8 @@ ul.js-facets-checkbox-links {padding-left: 0;}
     background-image:url(../images/checkbox_checked.png);
     background-position: 0 0;
 }
+
+
 #sidebar_first .facet-item label {
 background-image:url(../images/checkbox.png);
 background-position: 0 0;
@@ -198,13 +223,18 @@ background-position: 0 0;
 -ms-user-select: none;
 user-select: none;
 }
+
+li.facet-item {
+    font-family:'Cabin Condensed', sans-serif;
+}
+
 span.facet-item__value {display: block;}
 li.facet-summary-item--facet span.facet-item__value {display: inline;}
 a.searchJump.homeShow {
 		display:none;
-		
+
         }
-        
+
 .view-solr-search-content .view-header #home_header {display: none;}
 .view-solr-search-content .view-header .resultCount {display: block;}
 .view-solr-search-content .view-header.homeShow #home_header {display:block;}
@@ -240,11 +270,11 @@ a.searchJump.homeShow {
         linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
         linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
         linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39));
-      
+
       background-repeat: no-repeat;
       background-size: 8px 3px;
       background-position: top left, top right, bottom left, bottom right;
-    
+
       border: solid rgb(178, 45, 39);
       text-align: justify;
       border-width: 0 3px;
