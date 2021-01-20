@@ -174,11 +174,14 @@ ul.js-facets-checkbox-links {padding-left: 0;}
 
 .card-header {
 border:none;
-padding: .5rem 1.25rem;
+padding: .5rem 1.25rem .5rem .75rem;
 }
 
 .card {
     border: none;
+}
+.card p {
+    margin-bottom: .5rem;
 }
 
 span.node-readmore.nav-link {
@@ -186,13 +189,13 @@ span.node-readmore.nav-link {
 }
 
 .node--type-catada-initiative.node--view-mode-teaser.clearfix.card
-{margin-bottom:0;}
+{margin-bottom:5px;}
 
 
 /* End Cards */
 
 
-.field--name-field-state.field--type-entity-reference {margin-bottom: 0;}
+.field--name-field-state.field--type-entity-reference {margin-bottom:.4rem;}
 .field--name-body.card-body {padding-left: 0;}
 .item-list h4.card-header {background-color: #fff;}
 .item-list h4.card-header a {color: #3b3b3b;}
