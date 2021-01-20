@@ -3,8 +3,8 @@
  *
  * Subtheme specific CSS. Jenkins push 2
  */
- body {
-	font-family: 'roboto', sans-serif;
+ body, h1,h2,h3,h4 {
+	font-family: 'Roboto', sans-serif; 
 }
  #block-mainnavigation-2 ul#superfish-main {width: 72em; }
  #block-mainnavigation-2 ul#superfish-main > li { width: 14em; }
