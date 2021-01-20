@@ -160,7 +160,7 @@ margin-bottom: 27px;}
 
 #main-wrapper #main {padding-top: 15px;}
 ul.js-facets-checkbox-links {padding-left: 0;}
-#sidebar_first.sidebar .block {padding: 15px 6px;}
+/* #sidebar_first.sidebar .block {padding: 15px 6px;}  JR-removed */
 
 
 /* Cards */
@@ -174,12 +174,19 @@ ul.js-facets-checkbox-links {padding-left: 0;}
 
 .card-header {
 border:none;
-padding: .75rem 1.25rem;
+padding: .5rem 1.25rem;
 }
 
 .card {
     border: none;
 }
+
+span.node-readmore.nav-link {
+  padding:0;
+}
+
+.node--type-catada-initiative.node--view-mode-teaser.clearfix.card
+{margin-bottom:0;}
 
 
 /* End Cards */
@@ -222,6 +229,11 @@ background-position: 0 0;
 -moz-user-select: none;
 -ms-user-select: none;
 user-select: none;
+}
+
+
+.sidebar h2 {
+  font-weight: 900;
 }
 
 li.facet-item {
