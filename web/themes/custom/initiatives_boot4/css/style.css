@@ -243,6 +243,7 @@ li.facet-item,li.facet-summary-item--clear,li.facet-summary-item--facet {
     font-family:'Cabin Condensed', sans-serif;
 }
 li.facet-summary-item--clear a,li.facet-summary-item--facet a {font-size: 120%; color: #000; }
+li.facet-summary-item--facet a {font-size: 109%; }
 li.facet-summary-item--clear {font-weight: bold; }
 span.facet-item__value {display: block;}
 li.facet-summary-item--facet span.facet-item__value {display: inline;}
