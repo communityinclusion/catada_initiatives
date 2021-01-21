@@ -254,6 +254,8 @@ a.searchJump.homeShow {
 .view-solr-search-content .view-header .resultCount {display: block;}
 .view-solr-search-content .view-header.homeShow #home_header {display:block;}
 .view-solr-search-content .view-header.homeShow .resultCount {display:none;}
+.view-solr-search-content .view-footer {display: block;}
+.view-solr-search-content .view-footer.homeShow {display: none;}
 .view-solr-search-content .view-content.row { display: block;}
 
 /*.view-solr-search-content .view-content.row.hideRow { display: none;}*/

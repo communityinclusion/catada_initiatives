@@ -18,6 +18,7 @@
         var o = window.location.search.indexOf("state");
         if(m > -1 || n > -1 || o > -1  ) {
             if ($('.view-header').hasClass('homeShow'))$('.view-header').removeClass('homeShow');
+            if ($('.view-footer').hasClass('homeShow'))$('.view-footer').removeClass('homeShow');
             if ($('.view-content.row').hasClass('hideRow'))$('.view-content.row').removeClass('hideRow');
             if ($('nav').hasClass('hideRow'))$('nav').removeClass('hideRow');
             if ($('.searchJump').hasClass('searchJump'))$('.view-header').removeClass('searchJump');
@@ -26,6 +27,7 @@
           }
         else {
           if(!$('.view-header').hasClass('homeShow'))$('.view-header').addClass('homeShow');
+          if(!$('.view-footer').hasClass('homeShow'))$('.view-footer').addClass('homeShow');
           if(!$('.searchJump').hasClass('homeShow'))$('.searchJump').addClass('homeShow');
           if(!$('.view-content.row').hasClass('hideRow'))$('.view-content.row').addClass('hideRow');
           if(!$('.view-content.row').hasClass('hideRow'))$('.view-content.row').addClass('hideRow');
