@@ -296,9 +296,11 @@ a.searchJump.homeShow {
     border-radius: 0.5rem;
     box-shadow: 7px 7px 30px -5px rgba(0,0,0,0.1);
     margin-bottom: 2rem;
-      border: solid rgb(178, 45, 39);
+    margin-left:auto;
+    margin-right:auto;
+     /* border: solid rgb(178, 45, 39);
       text-align: justify;
-      border-width: 3px;
+      border-width: 3px;*/
 }
 
 
