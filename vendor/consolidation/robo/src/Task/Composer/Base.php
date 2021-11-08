@@ -1,13 +1,15 @@
 <?php
+
 namespace Robo\Task\Composer;
 
 use Robo\Contract\CommandInterface;
 use Robo\Exception\TaskException;
 use Robo\Task\BaseTask;
+use Robo\Common\ExecOneCommand;
 
 abstract class Base extends BaseTask implements CommandInterface
 {
-    use \Robo\Common\ExecOneCommand;
+    use ExecOneCommand;
 
     /**
      * @var string

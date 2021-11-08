@@ -46,6 +46,7 @@ class SearchApiSolrTest extends SolrBackendTestBase {
     'ga' => 'ga',
     'hi' => 'hi',
     'hr' => 'hr',
+    'hu' => 'hu',
     'id' => 'id',
     'it' => 'it',
     'ja' => 'ja',
@@ -271,7 +272,7 @@ class SearchApiSolrTest extends SolrBackendTestBase {
   }
 
   /**
-   * Tests the conversion of Search API queries into Solr queries.
+   * Tests if all supported languages are deployed correctly.
    */
   protected function checkSchemaLanguages() {
     /** @var \Drupal\search_api_solr\SolrBackendInterface $backend */
@@ -309,6 +310,7 @@ class SearchApiSolrTest extends SolrBackendTestBase {
           if (version_compare($targeted_solr_major_version, '6', '<')) {
             $language_ids['ar'] = FALSE;
             $language_ids['ja'] = FALSE;
+            $language_ids['hu'] = FALSE;
             $language_ids['sk'] = FALSE;
             if (version_compare($targeted_solr_major_version, '5', '<')) {
               $language_ids['cs'] = FALSE;
@@ -329,6 +331,7 @@ class SearchApiSolrTest extends SolrBackendTestBase {
     $parse_mode_phrase = $parse_mode_manager->createInstance('phrase');
     $parse_mode_sloppy_terms = $parse_mode_manager->createInstance('sloppy_terms');
     $parse_mode_sloppy_phrase = $parse_mode_manager->createInstance('sloppy_phrase');
+    $parse_mode_fuzzy_terms = $parse_mode_manager->createInstance('fuzzy_terms');
     $parse_mode_direct = $parse_mode_manager->createInstance('direct');
     $parse_mode_edismax = $parse_mode_manager->createInstance('edismax');
 
@@ -345,17 +348,28 @@ class SearchApiSolrTest extends SolrBackendTestBase {
     $flat = SolrUtility::flattenKeys(
       $query->getKeys(),
       [],
-      'sloppy_terms'
+      'sloppy_terms',
+      ['slop' => 1234]
     );
-    $this->assertEquals('(+"foo" +"apple pie"~10000000 +"bar")', $flat);
+    $this->assertEquals('(+"foo" +"apple pie"~1234 +"bar")', $flat);
 
     $query->setParseMode($parse_mode_sloppy_phrase);
     $flat = SolrUtility::flattenKeys(
       $query->getKeys(),
       [],
-      'sloppy_phrase'
+      'sloppy_phrase',
+      ['slop' => 5678]
     );
-    $this->assertEquals('(+"foo \"apple pie\" bar"~10000000)', $flat);
+    $this->assertEquals('(+"foo \"apple pie\" bar"~5678)', $flat);
+
+    $query->setParseMode($parse_mode_fuzzy_terms);
+    $flat = SolrUtility::flattenKeys(
+      $query->getKeys(),
+      [],
+      'fuzzy_terms',
+      ['fuzzy' => 1]
+    );
+    $this->assertEquals('(+foo~1 +"apple pie" +bar~1)', $flat);
 
     $query->setParseMode($parse_mode_terms);
     $flat = SolrUtility::flattenKeys(
@@ -454,9 +468,10 @@ class SearchApiSolrTest extends SolrBackendTestBase {
     $flat = SolrUtility::flattenKeys(
       $query->getKeys(),
       [],
-      'sloppy_phrase'
+      'sloppy_phrase',
+      ['slop' => 5]
     );
-    $this->assertEquals('(+"foo apple pie bar"~10000000)', $flat);
+    $this->assertEquals('(+"foo apple pie bar"~5)', $flat);
 
   }
 
@@ -1018,35 +1033,43 @@ class SearchApiSolrTest extends SolrBackendTestBase {
       ->execute();
     $this->assertResults([1, 2, 3, 4, 5, 6, 7], $results, 'Sort by type descending.');
 
-    // Type multi-value string. Uses first value.
-    $results = $this->buildSearch(NULL, [], [], FALSE)
-      ->sort('keywords')
-      // Force an expected order for identical keywords.
-      ->sort('search_api_id')
-      ->execute();
-    $this->assertResults([3, 6, 7, 4, 1, 2, 5], $results, 'Sort by keywords.');
+    /** @var \Drupal\search_api_solr\Plugin\search_api\backend\SearchApiSolrBackend $backend */
+    $backend = Server::load($this->serverId)->getBackend();
+    $targeted_branch = $backend->getSolrConnector()->getSchemaTargetedSolrBranch();
+    if ('3.x' !== $targeted_branch) {
+      // There's no real collated field for Solr 3.x. Therefore the sorting of
+      // of "non existing" values differ.
 
-    $results = $this->buildSearch(NULL, [], [], FALSE)
-      ->sort('keywords', QueryInterface::SORT_DESC)
-      // Force an expected order for identical keywords.
-      ->sort('search_api_id')
-      ->execute();
-    $this->assertResults([1, 2, 5, 4, 3, 6, 7], $results, 'Sort by keywords descending.');
+      // Type multi-value string. Uses first value.
+      $results = $this->buildSearch(NULL, [], [], FALSE)
+        ->sort('keywords')
+        // Force an expected order for identical keywords.
+        ->sort('search_api_id')
+        ->execute();
+      $this->assertResults([3, 6, 7, 4, 1, 2, 5], $results, 'Sort by keywords.');
 
-    // Type decimal.
-    $results = $this->buildSearch(NULL, [], [], FALSE)
-      ->sort('width')
-      // Force an expected order for identical width.
-      ->sort('search_api_id')
-      ->execute();
-    $this->assertResults([1, 2, 3, 6, 7, 4, 5], $results, 'Sort by width.');
+      $results = $this->buildSearch(NULL, [], [], FALSE)
+        ->sort('keywords', QueryInterface::SORT_DESC)
+        // Force an expected order for identical keywords.
+        ->sort('search_api_id')
+        ->execute();
+      $this->assertResults([1, 2, 5, 4, 3, 6, 7], $results, 'Sort by keywords descending.');
 
-    $results = $this->buildSearch(NULL, [], [], FALSE)
-      ->sort('width', QueryInterface::SORT_DESC)
-      // Force an expected order for identical width.
-      ->sort('search_api_id')
-      ->execute();
-    $this->assertResults([5, 4, 1, 2, 3, 6, 7], $results, 'Sort by width descending.');
+      // Type decimal.
+      $results = $this->buildSearch(NULL, [], [], FALSE)
+        ->sort('width')
+        // Force an expected order for identical width.
+        ->sort('search_api_id')
+        ->execute();
+      $this->assertResults([1, 2, 3, 6, 7, 4, 5], $results, 'Sort by width.');
+
+      $results = $this->buildSearch(NULL, [], [], FALSE)
+        ->sort('width', QueryInterface::SORT_DESC)
+        // Force an expected order for identical width.
+        ->sort('search_api_id')
+        ->execute();
+      $this->assertResults([5, 4, 1, 2, 3, 6, 7], $results, 'Sort by width descending.');
+    }
 
     $results = $this->buildSearch(NULL, [], [], FALSE)
       ->sort('changed')
@@ -1103,7 +1126,8 @@ class SearchApiSolrTest extends SolrBackendTestBase {
     $this->assertEquals('l', $suggestions[0]->getSuggestionSuffix());
     $this->assertEquals(2, $suggestions[0]->getResultsCount());
 
-    if ('4.x' !== $backend->getSolrConnector()->getSchemaTargetedSolrBranch()) {
+    $targeted_branch = $backend->getSolrConnector()->getSchemaTargetedSolrBranch();
+    if ('4.x' !== $targeted_branch && '3.x' !== $targeted_branch) {
       $query = $this->buildSearch(['articel'], [], ['body'], FALSE);
       $query->setLanguages(['en']);
       $suggestions = $backend->getSpellcheckSuggestions($query, $autocompleteSearch, 'articel', 'articel');
@@ -1443,11 +1467,12 @@ class SearchApiSolrTest extends SolrBackendTestBase {
       }
     }
 
-    $config_name = 'name="drupal-' . SolrBackendInterface::SEARCH_API_SOLR_MIN_SCHEMA_VERSION . '-solr-' . $solr_major_version . '.x-'. SEARCH_API_SOLR_JUMP_START_CONFIG_SET .'"';
+    $config_name = 'name="drupal-' . SolrBackendInterface::SEARCH_API_SOLR_SCHEMA_VERSION . '-solr-' . $solr_major_version . '.x-'. SEARCH_API_SOLR_JUMP_START_CONFIG_SET .'"';
     $this->assertStringContainsString($config_name, $config_files['solrconfig.xml']);
     $this->assertStringContainsString($config_name, $config_files['schema.xml']);
     $this->assertStringContainsString($server->id(), $config_files['test.txt']);
     $this->assertStringNotContainsString('<jmx />', $config_files['solrconfig_extra.xml']);
+    $this->assertStringNotContainsString('JtsSpatialContextFactory', $config_files['schema.xml']);
     if ('true' === SOLR_CLOUD) {
       $this->assertStringContainsString('solr.luceneMatchVersion:' . $solr_major_version, $config_files['solrconfig.xml']);
       $this->assertStringContainsString('<statsCache class="org.apache.solr.search.stats.LRUStatsCache" />', $config_files['solrconfig_extra.xml']);
@@ -1458,6 +1483,7 @@ class SearchApiSolrTest extends SolrBackendTestBase {
     }
 
     $backend_config['connector_config']['jmx'] = TRUE;
+    $backend_config['connector_config']['jts'] = TRUE;
     $backend_config['disabled_field_types'] = ['text_foo_en_4_5_0', 'text_foo_en_6_0_0', 'text_de_4_5_0', 'text_de_6_0_0', 'text_de_7_0_0'];
     $backend_config['disabled_caches'] = ['cache_document_default_7_0_0', 'cache_filter_default_7_0_0'];
     $server->setBackendConfig($backend_config);
@@ -1467,6 +1493,7 @@ class SearchApiSolrTest extends SolrBackendTestBase {
 
     $config_files = $solr_configset_controller->getConfigFiles();
     $this->assertStringContainsString('<jmx />', $config_files['solrconfig_extra.xml']);
+    $this->assertStringContainsString('JtsSpatialContextFactory', $config_files['schema.xml']);
     $this->assertStringContainsString('text_en', $config_files['schema_extra_types.xml']);
     $this->assertStringNotContainsString('text_foo_en', $config_files['schema_extra_types.xml']);
     $this->assertStringNotContainsString('text_de', $config_files['schema_extra_types.xml']);

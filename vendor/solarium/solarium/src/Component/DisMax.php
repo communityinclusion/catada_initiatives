@@ -17,7 +17,7 @@ use Solarium\Exception\InvalidArgumentException;
 /**
  * DisMax component.
  *
- * @see https://lucene.apache.org/solr/guide/the-dismax-query-parser.html
+ * @see https://solr.apache.org/guide/the-dismax-query-parser.html
  */
 class DisMax extends AbstractComponent
 {
@@ -237,7 +237,7 @@ class DisMax extends AbstractComponent
     {
         $this->setOption('tie', $tie);
 
-        return  $this;
+        return $this;
     }
 
     /**

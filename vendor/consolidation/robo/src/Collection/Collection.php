@@ -1,4 +1,5 @@
 <?php
+
 namespace Robo\Collection;
 
 use Robo\Exception\AbortTasksException;
@@ -13,7 +14,6 @@ use Robo\Contract\WrappedTaskInterface;
 use Robo\Exception\TaskException;
 use Robo\Exception\TaskExitException;
 use Robo\Contract\CommandInterface;
-
 use Robo\Contract\InflectionInterface;
 use Robo\State\StateAwareInterface;
 use Robo\State\StateAwareTrait;
@@ -787,7 +787,7 @@ class Collection extends BaseTask implements CollectionInterface, CommandInterfa
             } catch (AbortTasksException $abortTasksException) {
                 // If there's a forced exception, end the loop of tasks.
                 if ($message = $abortTasksException->getMessage()) {
-                    $this->logger()->notice($message);
+                    $this->printTaskInfo($message, ['name' => 'Exception']);
                 }
                 break;
             } catch (\Exception $e) {

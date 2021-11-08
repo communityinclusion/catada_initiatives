@@ -50,7 +50,7 @@ INSTALLATION
 CONFIGURATION
 -------------
 
- * Configure the admin toolbar tools at (/admin/config/user-interface/settings).
+No configuration is needed.
 
 
 MAINTAINERS

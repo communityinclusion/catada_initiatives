@@ -262,22 +262,38 @@ class RequestBuilder extends BaseRequestBuilder
         $xml = '';
 
         // Remove the values if 'null' or empty list is specified as the new value
-        // @see https://lucene.apache.org/solr/guide/updating-parts-of-documents.html#atomic-updates
+        // @see https://solr.apache.org/guide/updating-parts-of-documents.html#atomic-updates
         if (Document::MODIFIER_SET === $modifier && \is_array($value) && empty($value)) {
             $value = null;
         }
 
         if (\is_array($value)) {
+            $nestedXml = '';
             foreach ($value as $multival) {
-                if (\is_array($multival)) {
+                if (\is_array($multival) && '_childDocuments_' === $key) {
                     $xml .= '<doc>';
                     foreach ($multival as $k => $v) {
                         $xml .= $this->buildFieldsXml($k, $boost, $v, $modifier);
                     }
                     $xml .= '</doc>';
+                } elseif (\is_array($multival)) {
+                    $nestedXml .= '<doc';
+                    $nestedXml .= $this->attrib('update', $modifier);
+                    $nestedXml .= '>';
+                    foreach ($multival as $k => $v) {
+                        $nestedXml .= $this->buildFieldsXml($k, $boost, $v, null);
+                    }
+                    $nestedXml .= '</doc>';
                 } else {
+                    if (!empty($nestedXml)) {
+                        $xml .= '<field name="'.$key.'">'.$nestedXml.'</field>';
+                        $nestedXml = '';
+                    }
                     $xml .= $this->buildFieldXml($key, $boost, $multival, $modifier);
                 }
+            }
+            if (!empty($nestedXml) && '_childDocuments_' !== $key) {
+                $xml .= '<field name="'.$key.'">'.$nestedXml.'</field>';
             }
         } else {
             $xml .= $this->buildFieldXml($key, $boost, $value, $modifier);

@@ -1,3 +1,27 @@
+1.9.0 / 2020-03-11
+==================
+
+New features:
+
+* Fixed deprecation warnings on PHP 8.1
+* Improved responsiveness of `Element::waitFor`
+* Allowed selectors and replacements to be registered late
+
+Removed:
+
+* Removed support for PHP 5.3
+
+Testsuite:
+
+* Added CI jobs for PHP 8.0 and 8.1
+
+1.8.1 / 2020-03-11
+==================
+
+Bug fixes:
+
+* Fixed the phpdoc of `NodeElement::getValue`. This method actually returns `null` in some cases (unchecked checkbox for instance)
+
 1.8.0 / 2020-03-11
 ==================
 

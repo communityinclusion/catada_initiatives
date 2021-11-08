@@ -18,7 +18,7 @@ class AdminToolbarToolsSearchTest extends AdminToolbarSearchTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static $modules = [
+  public static $modules = [
     'admin_toolbar_tools',
     'admin_toolbar_search',
     'node',
@@ -38,7 +38,7 @@ class AdminToolbarToolsSearchTest extends AdminToolbarSearchTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp(): void {
+  public function setUp() {
     parent::setUp();
 
     $this->drupalCreateContentType([
@@ -67,16 +67,6 @@ class AdminToolbarToolsSearchTest extends AdminToolbarSearchTestBase {
       'ruby' => 'Ruby',
       'teddy' => 'Teddy',
       'toby' => 'Toby',
-      'tonga' => 'Tonga',
-      'tracey' => 'Tracey',
-      'tuna' => 'Tuna',
-      'uno' => 'Uno',
-      'venus' => 'Venus',
-      'vicky' => 'Vicky',
-      'wimpy' => 'Wimpy',
-      'yellow' => 'Yellow',
-      'zac' => 'zac',
-      'zora' => 'zora',
     ];
 
     foreach ($dog_names as $machine_name => $label) {
@@ -128,6 +118,15 @@ class AdminToolbarToolsSearchTest extends AdminToolbarSearchTestBase {
     $this->drupalGet('/admin/admin-toolbar-search');
 
     $search_menus = [
+      'cora',
+      'eleanor',
+      'eloise',
+      'felix',
+      'freya',
+      'genevieve',
+      'isla',
+      'jasper',
+      'luna',
       'maeve',
       'milo',
       'nora',
@@ -185,12 +184,12 @@ class AdminToolbarToolsSearchTest extends AdminToolbarSearchTestBase {
     // Test that bundle within admin toolbar appears in search.
     $this->assertSuggestionContains('lola', 'admin/structure/media/manage/lola/fields');
 
-    // Assert that a link after the limit doesn't appear in admin toolbar.
-    $zora_url = '/admin/structure/media/manage/zora/fields';
-    $assert_session->elementNotContains('css', '#toolbar-administration', $zora_url);
+    // Assert that a link after the limit (10) doesn't appear in admin toolbar.
+    $toby_url = '/admin/structure/media/manage/toby/fields';
+    $assert_session->elementNotContains('css', '#toolbar-administration', $toby_url);
 
     // Assert that a link excluded from admin toolbar appears in search.
-    $this->assertSuggestionContains('zora', $zora_url);
+    $this->assertSuggestionContains('toby', $toby_url);
 
     // Test that adding a new bundle updates the extra links loaded from
     // admin_toolbar.search route.
@@ -205,12 +204,12 @@ class AdminToolbarToolsSearchTest extends AdminToolbarSearchTestBase {
 
     // Test that deleting a bundle updates the extra links loaded from
     // admin_toolbar.search route.
-    $zora = MediaType::load('zora');
-    $zora->delete();
+    $toby = MediaType::load('toby');
+    $toby->delete();
 
     $this->getSession()->reload();
     $assert_session->waitForElementVisible('css', $search_tray);
-    $this->assertSuggestionNotContains('zora', $zora);
+    $this->assertSuggestionNotContains('toby', $toby_url);
   }
 
 }

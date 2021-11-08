@@ -286,10 +286,11 @@ function search_api_node_access_records_alter(array &$grants, NodeInterface $nod
 
         case 'comment':
           if (!isset($comments)) {
-            $entity_query = \Drupal::entityQuery('comment');
-            $entity_query->condition('entity_id', (int) $node->id());
-            $entity_query->condition('entity_type', 'node');
-            $comment_ids = $entity_query->execute();
+            $comment_ids = \Drupal::entityQuery('comment')
+              ->accessCheck(FALSE)
+              ->condition('entity_id', (int) $node->id())
+              ->condition('entity_type', 'node')
+              ->execute();
             /** @var \Drupal\comment\CommentInterface[] $comments */
             $comments = Comment::loadMultiple($comment_ids);
           }
@@ -576,19 +577,23 @@ function search_api_form_views_exposed_form_alter(&$form, FormStateInterface $fo
     && $query_plugin instanceof SearchApiQuery
     && \Drupal::moduleHandler()->moduleExists('facets');
   if ($preserve_facets) {
-    // Retrieve the facet source.
+    $filter_key = 'f';
+
+    // Attempt to retrieve the facet source to use the actual facets filter
+    // parameter as configured by the admin. (Facet source config entities are
+    // not always actually saved in the storage, if the admin didn't change
+    // their settings.)
     $query = $query_plugin->getSearchApiQuery();
     $display_id = $query->getSearchId(FALSE);
     $facet_source_id = str_replace(':', '__', 'search_api:' . $display_id);
     $facet_source = \Drupal::entityTypeManager()
       ->getStorage('facets_facet_source')
       ->load($facet_source_id);
-    if (!$facet_source) {
-      return;
+    if ($facet_source) {
+      $filter_key = $facet_source->getFilterKey() ?: 'f';
     }
 
     // Get the active facet filters from the query parameters.
-    $filter_key = $facet_source->getFilterKey() ?: 'f';
     $filters = \Drupal::request()->query->get($filter_key, []);
 
     // Do not iterate over facet filters if the parameter is not an array.

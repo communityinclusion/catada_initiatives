@@ -57,11 +57,6 @@ field_type:
           class: solr.StopFilterFactory
           ignoreCase: true
           words: stopwords_de.txt
-        -
-          class: solr.SynonymFilterFactory
-          synonyms: synonyms_de.txt
-          expand: true
-          ignoreCase: true
         # GermanNormalizationFilter is not needed if German2 Porter stemmer is
         # used.
         #-
@@ -97,6 +92,11 @@ field_type:
           max: 100
         -
           class: solr.LowerCaseFilterFactory
+        -
+          class: solr.SynonymFilterFactory
+          synonyms: synonyms_de.txt
+          expand: true
+          ignoreCase: true
         -
           class: solr.StopFilterFactory
           ignoreCase: true
@@ -4963,3 +4963,24 @@ text_files:
     "\uFB05" => "st"
     # ﬆ => st
     "\uFB06" => "st"
+    # Māori macrons.
+    # Ā => A
+    "\u0100" => "A"
+    # Ē => E
+    "\u0112" => "E"
+    # Ī => I
+    "\u012A" => "I"
+    # Ō => O
+    "\u014C" => "O"
+    # Ū => U
+    "\u016A" => "U"
+    # ā => a
+    "\u0101" => "a"
+    # ē => e
+    "\u0113" => "e"
+    # ī => i
+    "\u012B" => "i"
+    # ō => o
+    "\u014D" => "o"
+    # ū => u
+    "\u016B" => "u"

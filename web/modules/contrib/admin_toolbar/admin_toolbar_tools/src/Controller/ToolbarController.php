@@ -193,7 +193,7 @@ class ToolbarController extends ControllerBase {
       return $request->server->get('HTTP_REFERER');
     }
     else {
-      return base_path();
+      return '/';
     }
   }
 

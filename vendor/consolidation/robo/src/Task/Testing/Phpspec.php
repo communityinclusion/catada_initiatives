@@ -1,9 +1,11 @@
 <?php
+
 namespace Robo\Task\Testing;
 
 use Robo\Contract\PrintedInterface;
 use Robo\Task\BaseTask;
 use Robo\Contract\CommandInterface;
+use Robo\Common\ExecOneCommand;
 
 /**
  * Executes Phpspec tests
@@ -20,7 +22,7 @@ use Robo\Contract\CommandInterface;
  */
 class Phpspec extends BaseTask implements CommandInterface, PrintedInterface
 {
-    use \Robo\Common\ExecOneCommand;
+    use ExecOneCommand;
 
     /**
      * @var string

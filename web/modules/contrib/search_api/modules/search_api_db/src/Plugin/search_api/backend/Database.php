@@ -4,10 +4,10 @@ namespace Drupal\search_api_db\Plugin\search_api\backend;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Database as CoreDatabase;
 use Drupal\Core\Database\DatabaseException;
-use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -591,6 +591,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
       'search_api_autocomplete',
       'search_api_facets',
       'search_api_facets_operator_or',
+      'search_api_random_sort',
     ];
   }
 
@@ -850,7 +851,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
     // index with the same as the first table, which conflicts in SQLite.
     //
     // The core issue addressing this (https://www.drupal.org/node/1008128) was
-    // closed as it fixed the PostgresSQL part. The SQLite fix is added in
+    // closed as it fixed the PostgreSQL part. The SQLite fix is added in
     // https://www.drupal.org/node/2625664
     // We prevent this by adding an extra underscore (which is also the proposed
     // solution in the original core issue).
@@ -860,6 +861,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
     try {
       $this->database->schema()->addIndex($db['table'], '_' . $column, $index_spec, $table_spec);
     }
+    // @todo Use multi-catch once we depend on PHP 7.1+.
     catch (\PDOException $e) {
       $variables['%column'] = $column;
       $variables['%table'] = $db['table'];
@@ -1640,41 +1642,56 @@ class Database extends BackendPluginBase implements PluginFormInterface {
 
     $results = $query->getResults();
 
-    $skip_count = $query->getOption('skip result count');
-    $count = NULL;
-    if (!$skip_count) {
-      $count_query = $db_query->countQuery();
-      $count = $count_query->execute()->fetchField();
-      $results->setResultCount($count);
+    try {
+      $skip_count = $query->getOption('skip result count');
+      $count = NULL;
+      if (!$skip_count) {
+        $count_query = $db_query->countQuery();
+        $count = $count_query->execute()->fetchField();
+        $results->setResultCount($count);
+      }
+
+      // With a "min_count" of 0, some facets can even be available if there are
+      // no results.
+      if ($query->getOption('search_api_facets')) {
+        $facets = $this->getFacets($query, clone $db_query, $count);
+        $results->setExtraData('search_api_facets', $facets);
+      }
+      // Everything else can be skipped if the count is 0.
+      if ($skip_count || $count) {
+        $query_options = $query->getOptions();
+        if (isset($query_options['offset']) || isset($query_options['limit'])) {
+          $offset = $query_options['offset'] ?? 0;
+          $limit = $query_options['limit'] ?? 1000000;
+          $db_query->range($offset, $limit);
+        }
+
+        $this->setQuerySort($query, $db_query, $fields);
+
+        $result = $db_query->execute();
+
+        foreach ($result as $row) {
+          $item = $this->getFieldsHelper()->createItem($index, $row->item_id);
+          $item->setScore($row->score / self::SCORE_MULTIPLIER);
+          $results->addResultItem($item);
+        }
+        if ($skip_count && !empty($item)) {
+          $results->setResultCount(1);
+        }
+      }
     }
-
-    // With a "min_count" of 0, some facets can even be available if there are
-    // no results.
-    if ($query->getOption('search_api_facets')) {
-      $facets = $this->getFacets($query, clone $db_query, $count);
-      $results->setExtraData('search_api_facets', $facets);
+    // @todo Replace with multi-catch once we depend on PHP 7.1+.
+    catch (DatabaseException $e) {
+      if ($query instanceof RefinableCacheableDependencyInterface) {
+        $query->mergeCacheMaxAge(0);
+      }
+      throw new SearchApiException('A database exception occurred while searching.', $e->getCode(), $e);
     }
-    // Everything else can be skipped if the count is 0.
-    if ($skip_count || $count) {
-      $query_options = $query->getOptions();
-      if (isset($query_options['offset']) || isset($query_options['limit'])) {
-        $offset = isset($query_options['offset']) ? $query_options['offset'] : 0;
-        $limit = isset($query_options['limit']) ? $query_options['limit'] : 1000000;
-        $db_query->range($offset, $limit);
+    catch (\PDOException $e) {
+      if ($query instanceof RefinableCacheableDependencyInterface) {
+        $query->mergeCacheMaxAge(0);
       }
-
-      $this->setQuerySort($query, $db_query, $fields);
-
-      $result = $db_query->execute();
-
-      foreach ($result as $row) {
-        $item = $this->getFieldsHelper()->createItem($index, $row->item_id);
-        $item->setScore($row->score / self::SCORE_MULTIPLIER);
-        $results->addResultItem($item);
-      }
-      if ($skip_count && !empty($item)) {
-        $results->setResultCount(1);
-      }
+      throw new SearchApiException('A database exception occurred while searching.', $e->getCode(), $e);
     }
 
     // Add additional warnings and ignored keys.
@@ -2011,7 +2028,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
         $db_query->condition('t.word', $words, 'IN');
       }
       else {
-        $db_or = new Condition('OR');
+        $db_or = $db_query->orConditionGroup();
         // GROUP BY all existing non-aggregated columns.
         foreach ($db_query->getFields() as $column) {
           $db_query->groupBy("{$column['table']}.{$column['field']}");
@@ -2128,7 +2145,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
         $condition = $db_query;
       }
       else {
-        $condition = new Condition('OR');
+        $condition = $db_query->conditionGroupFactory('OR');
         $db_query->condition($condition);
       }
       foreach ($negated as $k) {
@@ -2194,7 +2211,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
    */
   protected function createDbCondition(ConditionGroupInterface $conditions, array $fields, SelectInterface $db_query, IndexInterface $index) {
     $conjunction = $conditions->getConjunction();
-    $db_condition = new Condition($conjunction);
+    $db_condition = $db_query->conditionGroupFactory($conjunction);
     $db_info = $this->getIndexDbInfo($index);
 
     // Store the table aliases for the fields in this condition group.
@@ -2233,7 +2250,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
             $db_condition->$method($column);
           }
           elseif ($not_between) {
-            $nested_condition = new Condition('OR');
+            $nested_condition = $db_query->conditionGroupFactory('OR');
             $nested_condition->condition($column, $value[0], '<');
             $nested_condition->condition($column, $value[1], '>');
             $nested_condition->isNull($column);
@@ -2242,7 +2259,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
           elseif ($not_equals) {
             // Since SQL never returns TRUE for comparison with NULL values, we
             // need to include "OR field IS NULL" explicitly for some operators.
-            $nested_condition = new Condition('OR');
+            $nested_condition = $db_query->conditionGroupFactory('OR');
             $nested_condition->condition($column, $value, $operator);
             $nested_condition->isNull($column);
             $db_condition->condition($nested_condition);
@@ -2356,7 +2373,7 @@ class Database extends BackendPluginBase implements PluginFormInterface {
   protected function preQuery(SelectInterface &$db_query, QueryInterface $query) {}
 
   /**
-   * Adds the approiate "ORDER BY" statements to a search database query.
+   * Adds the appropriate "ORDER BY" statements to a search database query.
    *
    * @param \Drupal\search_api\Query\QueryInterface $query
    *   The search query whose sorts should be applied.
@@ -2384,6 +2401,11 @@ class Database extends BackendPluginBase implements PluginFormInterface {
         }
         if ($field_name == 'search_api_relevance') {
           $db_query->orderBy('score', $order);
+          continue;
+        }
+
+        if ($field_name == 'search_api_random') {
+          $this->dbmsCompatibility->orderByRandom($db_query);
           continue;
         }
 

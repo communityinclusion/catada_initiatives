@@ -7,6 +7,8 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -18,6 +20,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
@@ -28,8 +31,9 @@ use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\search_api\Datasource\DatasourcePluginBase;
 use Drupal\search_api\IndexInterface;
-use Drupal\search_api\Utility\Dependencies;
+use Drupal\search_api\LoggerTrait;
 use Drupal\search_api\Plugin\PluginFormTrait;
+use Drupal\search_api\Utility\Dependencies;
 use Drupal\search_api\Utility\FieldsHelperInterface;
 use Drupal\search_api\Utility\Utility;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -44,6 +48,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ContentEntity extends DatasourcePluginBase implements PluginFormInterface {
 
+  use LoggerTrait;
   use PluginFormTrait;
 
   /**
@@ -52,6 +57,13 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
    * @todo Make protected once we depend on PHP 7.1+.
    */
   const TRACKING_PAGE_STATE_KEY = 'search_api.datasource.entity.last_ids';
+
+  /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
 
   /**
    * The entity memory cache.
@@ -147,6 +159,7 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
     /** @var static $datasource */
     $datasource = parent::create($container, $configuration, $plugin_id, $plugin_definition);
 
+    $datasource->setDatabaseConnection($container->get('database'));
     $datasource->setEntityTypeManager($container->get('entity_type.manager'));
     $datasource->setEntityFieldManager($container->get('entity_field.manager'));
     $datasource->setEntityDisplayRepository($container->get('entity_display.repository'));
@@ -157,8 +170,32 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
     $datasource->setFieldsHelper($container->get('search_api.fields_helper'));
     $datasource->setState($container->get('state'));
     $datasource->setEntityMemoryCache($container->get('entity.memory_cache'));
+    $datasource->setLogger($container->get('logger.channel.search_api'));
 
     return $datasource;
+  }
+
+  /**
+   * Retrieves the database connection.
+   *
+   * @return \Drupal\Core\Database\Connection
+   *   The database connection.
+   */
+  public function getDatabaseConnection(): Connection {
+    return $this->database ?: \Drupal::database();
+  }
+
+  /**
+   * Sets the database connection.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The new database connection.
+   *
+   * @return $this
+   */
+  public function setDatabaseConnection(Connection $connection): self {
+    $this->database = $connection;
+    return $this;
   }
 
   /**
@@ -748,12 +785,26 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
       return NULL;
     }
 
-    $select = $this->getEntityTypeManager()
-      ->getStorage($this->getEntityTypeId())
-      ->getQuery();
+    $entity_type = $this->getEntityType();
+    $entity_id = $entity_type->getKey('id');
 
-    // When tracking items, we never want access checks.
-    $select->accessCheck(FALSE);
+    // Use a direct database query when an entity has a defined base table. This
+    // should prevent performance issues associated with the use of entity query
+    // on large data sets. This allows for better control over what tables are
+    // included in the query.
+    // If no base table is present, then perform an entity query instead.
+    if ($entity_type->getBaseTable()) {
+      $select = $this->getDatabaseConnection()
+        ->select($entity_type->getBaseTable(), 'base_table')
+        ->fields('base_table', [$entity_id]);
+    }
+    else {
+      $select = $this->getEntityTypeManager()
+        ->getStorage($this->getEntityTypeId())
+        ->getQuery();
+      // When tracking items, we never want access checks.
+      $select->accessCheck(FALSE);
+    }
 
     // Build up the context for tracking the last ID for this batch page.
     $batch_page_context = [
@@ -773,7 +824,7 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
     // translations in $languages and those (matching $bundles) where we want
     // all (enabled) translations.
     if ($this->hasBundles()) {
-      $bundle_property = $this->getEntityType()->getKey('bundle');
+      $bundle_property = $entity_type->getKey('bundle');
       if ($bundles && !$languages) {
         $select->condition($bundle_property, $bundles, 'IN');
       }
@@ -793,7 +844,6 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
     if (isset($page)) {
       $page_size = $this->getConfigValue('tracking_page_size');
       assert($page_size, 'Tracking page size is not set.');
-      $entity_id = $this->getEntityType()->getKey('id');
 
       // If known, use a condition on the last tracked ID for paging instead of
       // the offset, for performance reasons on large sites.
@@ -813,10 +863,20 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
       $select->range($offset, $page_size);
 
       // For paging to reliably work, a sort should be present.
-      $select->sort($entity_id);
+      if ($select instanceof SelectInterface) {
+        $select->orderBy($entity_id);
+      }
+      else {
+        $select->sort($entity_id);
+      }
     }
 
-    $entity_ids = $select->execute();
+    if ($select instanceof SelectInterface) {
+      $entity_ids = $select->execute()->fetchCol();
+    }
+    else {
+      $entity_ids = $select->execute();
+    }
 
     if (!$entity_ids) {
       if (isset($page)) {
@@ -1039,6 +1099,11 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
     $ids_to_reindex = [];
     $path_separator = IndexInterface::PROPERTY_PATH_SEPARATOR;
     foreach ($foreign_entity_relationship_map as $relation_info) {
+      // Ignore relationships belonging to other datasources.
+      if (!empty($relation_info['datasource'])
+          && $relation_info['datasource'] !== $this->getPluginId()) {
+        continue;
+      }
       // Check whether entity type and (if specified) bundles match the entity.
       if ($relation_info['entity_type'] !== $entity->getEntityTypeId()) {
         continue;
@@ -1073,7 +1138,29 @@ class ContentEntity extends DatasourcePluginBase implements PluginFormInterface 
         try {
           $entity_ids = array_values($query->execute());
         }
-        catch (\Exception $e) {
+        // @todo Switch back to \Exception once Core bug #2893747 is fixed.
+        catch (\Throwable $e) {
+          // We don't want to catch all PHP \Error objects thrown, but just the
+          // ones caused by #2893747.
+          if (!($e instanceof \Exception)
+              && (get_class($e) !== \Error::class || $e->getMessage() !== 'Call to a member function getColumns() on bool')) {
+            throw $e;
+          }
+          $vars = [
+            '%index' => $this->index->label(),
+            '%entity_type' => $entity->getEntityType()->getLabel(),
+            '@entity_id' => $entity->id(),
+          ];
+          try {
+            $link = $entity->toLink($this->t('Go to changed %entity_type with ID "@entity_id"', $vars))
+              ->toString()->getGeneratedLink();
+          }
+          catch (\Throwable $e) {
+            // Ignore any errors here, it's not that important that the log
+            // message contains a link.
+            $link = NULL;
+          }
+          $this->logException($e, '%type while attempting to find indexed entities referencing changed %entity_type with ID "@entity_id" for index %index: @message in %function (line %line of %file).', $vars, RfcLogLevel::ERROR, $link);
           continue;
         }
         foreach ($entity_ids as $entity_id) {

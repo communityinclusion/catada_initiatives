@@ -1,4 +1,5 @@
 <?php
+
 namespace Robo\Task\Base;
 
 use Lurker\ResourceWatcher;
@@ -100,7 +101,7 @@ class Watch extends BaseTask
     public function run()
     {
         if (!class_exists('Lurker\\ResourceWatcher')) {
-            return Result::errorMissingPackage($this, 'ResourceWatcher', 'henrikbjorn/lurker');
+            return Result::errorMissingPackage($this, 'ResourceWatcher', 'totten/lurkerlite');
         }
 
         $watcher = new ResourceWatcher();

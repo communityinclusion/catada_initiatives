@@ -36,8 +36,7 @@ class AdminToolbar implements TrustedCallbackInterface {
   public static function preRenderTray(array $build) {
     $menu_tree = \Drupal::service('toolbar.menu_tree');
     $parameters = new MenuTreeParameters();
-    $max_depth = \Drupal::config('admin_toolbar.settings')->get('menu_depth');
-    $parameters->setRoot('system.admin')->excludeRoot()->setMaxDepth($max_depth)->onlyEnabledLinks();
+    $parameters->setRoot('system.admin')->excludeRoot()->setMaxDepth(4)->onlyEnabledLinks();
     $tree = $menu_tree->load(NULL, $parameters);
     $manipulators = [
       ['callable' => 'menu.default_tree_manipulators:checkAccess'],

@@ -102,7 +102,11 @@ class Extract extends BaseTask implements BuilderAwareInterface
         // We will first extract to $extractLocation and then move to $this->to
         $extractLocation = static::getTmpDir();
         @mkdir($extractLocation);
-        @mkdir(dirname($this->to));
+
+        $destinationParentDir = dirname($this->to);
+        if (!file_exists($destinationParentDir)) {
+            @mkdir($destinationParentDir);
+        }
 
         $this->startTimer();
 
@@ -274,6 +278,6 @@ class Extract extends BaseTask implements BuilderAwareInterface
      */
     protected static function getTmpDir()
     {
-        return getcwd().'/tmp'.rand().time();
+        return getcwd() . '/tmp' . rand() . time();
     }
 }

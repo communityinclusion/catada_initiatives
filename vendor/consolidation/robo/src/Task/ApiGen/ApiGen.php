@@ -1,10 +1,12 @@
 <?php
+
 namespace Robo\Task\ApiGen;
 
 use Robo\Contract\CommandInterface;
 use Robo\Exception\TaskException;
 use Robo\Task\BaseTask;
 use Traversable;
+use Robo\Common\ExecOneCommand;
 
 /**
  * Executes ApiGen command to generate documentation
@@ -22,7 +24,7 @@ use Traversable;
  */
 class ApiGen extends BaseTask implements CommandInterface
 {
-    use \Robo\Common\ExecOneCommand;
+    use ExecOneCommand;
 
     const BOOL_NO = 'no';
     const BOOL_YES = 'yes';
@@ -72,8 +74,9 @@ class ApiGen extends BaseTask implements CommandInterface
      */
     public function args($args)
     {
+        $func_args = func_get_args();
         if (!is_array($args)) {
-            $args = func_get_args();
+            $args = $func_args;
         }
         $args = array_map(function ($arg) {
             if (preg_match('/^\w+$/', trim($arg)) === 1) {
