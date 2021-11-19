@@ -52,7 +52,6 @@ use Drupal\search_api_solr\Event\PostSetFacetsEvent;
 use Drupal\search_api_solr\Event\PreCreateIndexDocumentEvent;
 use Drupal\search_api_solr\Event\PreExtractFacetsEvent;
 use Drupal\search_api_solr\Event\PreSetFacetsEvent;
-use Drupal\search_api_solr\Plugin\search_api\processor\BoostMoreRecent;
 use Drupal\search_api_solr\SearchApiSolrException;
 use Drupal\search_api_solr\Solarium\Autocomplete\Query as AutocompleteQuery;
 use Drupal\search_api_solr\Solarium\EventDispatcher\Psr14Bridge;
@@ -187,14 +186,7 @@ class SearchApiSolrBackend extends BackendPluginBase implements SolrBackendInter
     $this->dataTypeHelper = $dataTypeHelper;
     $this->queryHelper = $query_helper;
     $this->entityTypeManager = $entityTypeManager;
-    if (Comparator::greaterThanOrEqualTo(\Drupal::VERSION, '9.1.0')) {
-      // Drupal >= 9.1.
-      $this->eventDispatcher = $eventDispatcher;
-    }
-    else {
-      // Drupal <= 9.0.
-      $this->eventDispatcher = new Psr14Bridge($eventDispatcher);
-    }
+    $this->eventDispatcher = $eventDispatcher;
 
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -1652,12 +1644,12 @@ class SearchApiSolrBackend extends BackendPluginBase implements SolrBackendInter
             $sorts = $solarium_query->getSorts();
             $relevance_field = reset($field_names['search_api_relevance']);
             if (isset($sorts[$relevance_field])) {
-              if ($boosts = $query->getOption('solr_boost_more_recent', [])) {
+              if ($boosts = $query->getOption('solr_document_boost_factors', [])) {
                 $sum[] = 'boost_document';
                 foreach ($boosts as $field_id => $boost) {
                   // Ensure a single value field for the boost function.
                   $solr_field_name = Utility::getSortableSolrField($field_id, $field_names, $query);
-                  $sum[] = str_replace(BoostMoreRecent::FIELD_PLACEHOLDER, $solr_field_name, $boost);
+                  $sum[] = str_replace(self::FIELD_PLACEHOLDER, $solr_field_name, $boost);
                 }
                 $flatten_query[] = '{!boost b=sum(' . implode(',', $sum). ')}';
               }
