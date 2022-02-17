@@ -263,7 +263,7 @@ a.searchJump.homeShow {
 
 /*.view-solr-search-content .view-content.row.hideRow { display: none;}*/
 .view-solr-search-content nav {display: block;}
-/*.view-solr-search-content nav.hideRow {display: none;} */
+.view-solr-search-content nav.hideRow {display: none;} 
 #block-yoursearch div.searchIntro {display:none;}
 .facetShow #block-yoursearch div.searchIntro {display: block;}
 .button {
