@@ -7058,6 +7058,62 @@
             "install-path": "../../web/modules/contrib/search_api_solr"
         },
         {
+            "name": "drupal/search_api_solr_defaults",
+            "version": "4.2.7",
+            "version_normalized": "4.2.7.0",
+            "require": {
+                "drupal/core": "^9.2 || ^10.0",
+                "drupal/search_api_solr": "*"
+            },
+            "type": "metapackage",
+            "extra": {
+                "drupal": {
+                    "version": "4.2.7",
+                    "datestamp": "1643655324",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "amateescu",
+                    "homepage": "https://www.drupal.org/user/729614"
+                },
+                {
+                    "name": "Berdir",
+                    "homepage": "https://www.drupal.org/user/214652"
+                },
+                {
+                    "name": "cspitzlay",
+                    "homepage": "https://www.drupal.org/user/419305"
+                },
+                {
+                    "name": "drunken monkey",
+                    "homepage": "https://www.drupal.org/user/205582"
+                },
+                {
+                    "name": "mkalkbrenner",
+                    "homepage": "https://www.drupal.org/user/124705"
+                },
+                {
+                    "name": "Nick_vh",
+                    "homepage": "https://www.drupal.org/user/122682"
+                }
+            ],
+            "description": "Enable this module for a best-practice default setup of Search API with the Solr backend. After installation it is recommended to uninstall this module again for performance reasons. The provided configuration will not be removed.",
+            "homepage": "https://www.drupal.org/project/search_api_solr",
+            "support": {
+                "source": "https://git.drupalcode.org/project/search_api_solr"
+            },
+            "install-path": null
+        },
+        {
             "name": "drupal/simple_mail",
             "version": "2.0.0",
             "version_normalized": "2.0.0.0",

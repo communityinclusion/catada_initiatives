@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '6a6a1b0fd88a58bcd4c57538fecfacec1f1759b3',
+        'reference' => '2a9fcd1898aecfefb9f87b2a7ec3f43f685efe74',
         'name' => 'drupal-composer/drupal-project',
         'dev' => true,
     ),
@@ -397,7 +397,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '6a6a1b0fd88a58bcd4c57538fecfacec1f1759b3',
+            'reference' => '2a9fcd1898aecfefb9f87b2a7ec3f43f685efe74',
             'dev_requirement' => false,
         ),
         'drupal/action' => array(
@@ -1463,6 +1463,15 @@
             'install_path' => __DIR__ . '/../../web/modules/contrib/search_api_solr',
             'aliases' => array(),
             'reference' => '4.2.8',
+            'dev_requirement' => false,
+        ),
+        'drupal/search_api_solr_defaults' => array(
+            'pretty_version' => '4.2.7',
+            'version' => '4.2.7.0',
+            'type' => 'metapackage',
+            'install_path' => NULL,
+            'aliases' => array(),
+            'reference' => NULL,
             'dev_requirement' => false,
         ),
         'drupal/serialization' => array(
