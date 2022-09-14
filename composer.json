@@ -75,6 +75,8 @@
         "drupal/geofield": "^1.1",
         "drupal/google_analytics": "^3.0",
         "drupal/imce": "^2.3",
+        "drupal/jquery_ui_slider": "^1.1",
+        "drupal/jquery_ui_touch_punch": "^1.1",
         "drupal/mailgun": "^1.0@beta",
         "drupal/memcache": "^2.0",
         "drupal/menu_block": "^1.5",
