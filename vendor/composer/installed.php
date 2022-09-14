@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '2a9fcd1898aecfefb9f87b2a7ec3f43f685efe74',
+        'reference' => 'd17ed531d048ce29ed911c384638e246d30fea0a',
         'name' => 'drupal-composer/drupal-project',
         'dev' => true,
     ),
@@ -397,7 +397,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '2a9fcd1898aecfefb9f87b2a7ec3f43f685efe74',
+            'reference' => 'd17ed531d048ce29ed911c384638e246d30fea0a',
             'dev_requirement' => false,
         ),
         'drupal/action' => array(
@@ -983,12 +983,12 @@
             'dev_requirement' => false,
         ),
         'drupal/facets' => array(
-            'pretty_version' => '1.8.0',
-            'version' => '1.8.0.0',
+            'pretty_version' => '2.0.5',
+            'version' => '2.0.5.0',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../web/modules/contrib/facets',
             'aliases' => array(),
-            'reference' => '8.x-1.8',
+            'reference' => '2.0.5',
             'dev_requirement' => false,
         ),
         'drupal/feeds' => array(
