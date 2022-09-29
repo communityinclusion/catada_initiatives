@@ -38,6 +38,7 @@ class RequestBuilder extends BaseRequestBuilder
     {
         $request = parent::build($query);
         $request->setMethod(Request::METHOD_POST);
+        $request->setContentType(Request::CONTENT_TYPE_APPLICATION_XML);
         $request->setRawData($this->getRawData($query));
 
         return $request;
@@ -269,7 +270,9 @@ class RequestBuilder extends BaseRequestBuilder
         }
 
         if (\is_array($value)) {
-            if (is_numeric(array_key_first($value))) {
+            if (empty($value)) {
+                return '';
+            } elseif (is_numeric(array_key_first($value))) {
                 $nestedXml = '';
 
                 foreach ($value as $multival) {
