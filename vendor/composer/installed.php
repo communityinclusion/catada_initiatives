@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'c1f3e3313b9260f5546266d44a65e9aff4a684ee',
+        'reference' => '025db785a50718f0d1d53bb6451f57c2b1db5118',
         'name' => 'drupal-composer/drupal-project',
         'dev' => true,
     ),
@@ -406,7 +406,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'c1f3e3313b9260f5546266d44a65e9aff4a684ee',
+            'reference' => '025db785a50718f0d1d53bb6451f57c2b1db5118',
             'dev_requirement' => false,
         ),
         'drupal/address' => array(
@@ -419,12 +419,12 @@
             'dev_requirement' => false,
         ),
         'drupal/admin_toolbar' => array(
-            'pretty_version' => '3.1.1',
-            'version' => '3.1.1.0',
+            'pretty_version' => '3.2.1',
+            'version' => '3.2.1.0',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../web/modules/contrib/admin_toolbar',
             'aliases' => array(),
-            'reference' => '3.1.1',
+            'reference' => '3.2.1',
             'dev_requirement' => false,
         ),
         'drupal/adminimal_admin_toolbar' => array(
