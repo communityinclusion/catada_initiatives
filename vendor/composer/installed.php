@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '025db785a50718f0d1d53bb6451f57c2b1db5118',
+        'reference' => '81ce9c73196ba342020b6242239d7554031e9954',
         'name' => 'drupal-composer/drupal-project',
         'dev' => true,
     ),
@@ -406,7 +406,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '025db785a50718f0d1d53bb6451f57c2b1db5118',
+            'reference' => '81ce9c73196ba342020b6242239d7554031e9954',
             'dev_requirement' => false,
         ),
         'drupal/address' => array(
@@ -1043,12 +1043,12 @@
             'dev_requirement' => false,
         ),
         'drupal/search_api' => array(
-            'pretty_version' => '1.25.0',
-            'version' => '1.25.0.0',
+            'pretty_version' => '1.28.0',
+            'version' => '1.28.0.0',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../web/modules/contrib/search_api',
             'aliases' => array(),
-            'reference' => '8.x-1.25',
+            'reference' => '8.x-1.28',
             'dev_requirement' => false,
         ),
         'drupal/search_api_db' => array(
