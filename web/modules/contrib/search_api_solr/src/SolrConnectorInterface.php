@@ -103,9 +103,17 @@ interface SolrConnectorInterface extends ConfigurableInterface {
    *   An optional Solr version string.
    *
    * @return string
-   *   The lucene match version in V.V format.
+   *   The lucene match version in Major.Minor(.Patch) format.
    */
   public function getLuceneMatchVersion($version = '');
+
+  /**
+   * Gets the current Lucene version deployed on Solr server.
+   *
+   * @return string
+   *   The full Lucene version string.
+   */
+  public function getLuceneVersion();
 
   /**
    * Gets information about the Solr server.
@@ -326,7 +334,7 @@ interface SolrConnectorInterface extends ConfigurableInterface {
   /**
    * Creates a new Solarium more like this query.
    *
-   * @return \Solarium\QueryType\MorelikeThis\Query
+   * @return \Solarium\QueryType\MoreLikeThis\Query
    *   The MoreLikeThis query.
    */
   public function getMoreLikeThisQuery();
@@ -546,7 +554,7 @@ interface SolrConnectorInterface extends ConfigurableInterface {
    *   the directory contents are instead listed and returned. NULL represents
    *   the root config directory.
    *
-   * @return \Solarium\Core\Client\Response
+   * @return \Solarium\Core\Client\Response|array
    *   A Solarium response object containing either the file contents or a file
    *   list.
    *
@@ -659,7 +667,7 @@ interface SolrConnectorInterface extends ConfigurableInterface {
   /**
    * Alter the zip archive of newly assembled Solr configuration files.
    *
-   * @param ZipStream $zip
+   * @param \ZipStream\ZipStream $zip
    *   Zip archive.
    * @param string $lucene_match_version
    *   Lucene (Solr) minor version string.
