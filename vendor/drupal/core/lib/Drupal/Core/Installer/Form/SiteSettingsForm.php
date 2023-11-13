@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\SettingsEditor;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -37,6 +38,8 @@ class SiteSettingsForm extends FormBase {
    *
    * @param string $site_path
    *   The site path.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer.
    */
   public function __construct($site_path, RendererInterface $renderer) {
     $this->sitePath = $site_path;
@@ -44,11 +47,11 @@ class SiteSettingsForm extends FormBase {
   }
 
   /**
-    * {@inheritdoc}
-    */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('site.path'),
+      $container->getParameter('site.path'),
       $container->get('renderer')
     );
   }
@@ -64,6 +67,8 @@ class SiteSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    // Make sure the install API is available.
+    include_once DRUPAL_ROOT . '/core/includes/install.inc';
     $settings_file = './' . $this->sitePath . '/settings.php';
 
     $form['#title'] = $this->t('Database configuration');
@@ -152,6 +157,9 @@ class SiteSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    // Make sure the install API is available.
+    include_once DRUPAL_ROOT . '/core/includes/install.inc';
+
     $driver = $form_state->getValue('driver');
     $database = $form_state->getValue($driver);
     $drivers = drupal_get_database_types();
@@ -217,7 +225,7 @@ class SiteSettingsForm extends FormBase {
   public static function getDatabaseErrorsTemplate(array $errors) {
     return [
       '#type' => 'inline_template',
-      '#template' => '{% trans %}Resolve all issues below to continue the installation. For help configuring your database server, see the <a href="https://www.drupal.org/docs/8/install">installation handbook</a>, or contact your hosting provider.{% endtrans %}{{ errors }}',
+      '#template' => '{% trans %}Resolve all issues below to continue the installation. For help configuring your database server, see the <a href="https://www.drupal.org/docs/installing-drupal">installation handbook</a>, or contact your hosting provider.{% endtrans %}{{ errors }}',
       '#context' => [
         'errors' => [
           '#theme' => 'item_list',
@@ -232,6 +240,9 @@ class SiteSettingsForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     global $install_state;
+
+    // Make sure the install API is available.
+    include_once DRUPAL_ROOT . '/core/includes/install.inc';
 
     // Update global settings array and save.
     $settings = [];
@@ -262,7 +273,7 @@ class SiteSettingsForm extends FormBase {
       ];
     }
 
-    drupal_rewrite_settings($settings);
+    SettingsEditor::rewrite($this->sitePath . '/settings.php', $settings);
 
     // Indicate that the settings file has been verified, and check the database
     // for the last completed task, now that we have a valid connection. This
@@ -281,7 +292,7 @@ class SiteSettingsForm extends FormBase {
    *   The path to the generated config sync directory.
    */
   protected function createRandomConfigDirectory() {
-    $config_sync_directory = \Drupal::service('site.path') . '/files/config_' . Crypt::randomBytesBase64(55) . '/sync';
+    $config_sync_directory = $this->sitePath . '/files/config_' . Crypt::randomBytesBase64(55) . '/sync';
     // This should never fail, it is created here inside the public files
     // directory, which has already been verified to be writable itself.
     if (\Drupal::service('file_system')->prepareDirectory($config_sync_directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {

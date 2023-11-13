@@ -35,7 +35,7 @@ class FilterDateTimeTest extends DateTimeHandlerTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp($import_test_views = TRUE) {
+  protected function setUp($import_test_views = TRUE): void {
     parent::setUp($import_test_views);
 
     static::$date = REQUEST_TIME + 86400;
@@ -69,7 +69,7 @@ class FilterDateTimeTest extends DateTimeHandlerTestBase {
   }
 
   /**
-   * Test filter operations.
+   * Tests filter operations.
    */
   public function testDatetimeFilter() {
     $this->_testOffset();
@@ -78,11 +78,11 @@ class FilterDateTimeTest extends DateTimeHandlerTestBase {
   }
 
   /**
-   * Test offset operations.
+   * Tests offset operations.
    */
   protected function _testOffset() {
     $view = Views::getView('test_filter_datetime');
-    $field = static::$field_name . '_value';
+    $field = static::$fieldName . '_value';
 
     // Test simple operations.
     $view->initHandlers();
@@ -113,11 +113,11 @@ class FilterDateTimeTest extends DateTimeHandlerTestBase {
   }
 
   /**
-   * Test between operations.
+   * Tests between operations.
    */
   protected function _testBetween() {
     $view = Views::getView('test_filter_datetime');
-    $field = static::$field_name . '_value';
+    $field = static::$fieldName . '_value';
 
     // Test between with min and max.
     $view->initHandlers();
@@ -176,11 +176,11 @@ class FilterDateTimeTest extends DateTimeHandlerTestBase {
   }
 
   /**
-   * Test exact date matching.
+   * Tests exact date matching.
    */
   protected function _testExact() {
     $view = Views::getView('test_filter_datetime');
-    $field = static::$field_name . '_value';
+    $field = static::$fieldName . '_value';
 
     // Test between with min and max.
     $view->initHandlers();

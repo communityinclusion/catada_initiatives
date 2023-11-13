@@ -23,7 +23,6 @@ class EntityResourceValidationTraitTest extends UnitTestCase {
     $trait = new EntityResourceValidationTraitTestClass();
 
     $method = new \ReflectionMethod($trait, 'validate');
-    $method->setAccessible(TRUE);
 
     $violations = $this->prophesize(EntityConstraintViolationList::class);
     $violations->filterByFieldAccess()->shouldBeCalled()->willReturn([]);
@@ -51,19 +50,18 @@ class EntityResourceValidationTraitTest extends UnitTestCase {
 
     $violations = $this->getMockBuilder(EntityConstraintViolationList::class)
       ->setConstructorArgs([$entity->reveal(), [$violation1->reveal(), $violation2->reveal()]])
-      ->setMethods(['filterByFieldAccess'])
+      ->onlyMethods(['filterByFieldAccess'])
       ->getMock();
 
     $violations->expects($this->once())
       ->method('filterByFieldAccess')
-      ->will($this->returnValue([]));
+      ->willReturn([]);
 
     $entity->validate()->willReturn($violations);
 
     $trait = new EntityResourceValidationTraitTestClass();
 
     $method = new \ReflectionMethod($trait, 'validate');
-    $method->setAccessible(TRUE);
 
     $this->expectException(UnprocessableEntityHttpException::class);
 

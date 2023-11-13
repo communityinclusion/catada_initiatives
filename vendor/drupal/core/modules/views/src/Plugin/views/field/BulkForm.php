@@ -3,7 +3,6 @@
 namespace Drupal\views\Plugin\views\field;
 
 use Drupal\Core\Cache\CacheableDependencyInterface;
-use Drupal\Core\DependencyInjection\DeprecatedServicePropertyTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
@@ -12,6 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Routing\RedirectDestinationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\views\Entity\Render\EntityTranslationRenderTrait;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
@@ -21,7 +21,7 @@ use Drupal\views\ViewExecutable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines a actions-based bulk operation form element.
+ * Defines an actions-based bulk operation form element.
  *
  * @ViewsField("bulk_form")
  */
@@ -30,15 +30,9 @@ class BulkForm extends FieldPluginBase implements CacheableDependencyInterface {
   use RedirectDestinationTrait;
   use UncacheableFieldHandlerTrait;
   use EntityTranslationRenderTrait;
-  use DeprecatedServicePropertyTrait;
 
   /**
-   * {@inheritdoc}
-   */
-  protected $deprecatedProperties = ['entityManager' => 'entity.manager'];
-
-  /**
-   * The entity manager.
+   * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
@@ -99,17 +93,13 @@ class BulkForm extends FieldPluginBase implements CacheableDependencyInterface {
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager, MessengerInterface $messenger, EntityRepositoryInterface $entity_repository = NULL) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager, MessengerInterface $messenger, EntityRepositoryInterface $entity_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityTypeManager = $entity_type_manager;
     $this->actionStorage = $entity_type_manager->getStorage('action');
     $this->languageManager = $language_manager;
     $this->messenger = $messenger;
-    if (!$entity_repository) {
-      @trigger_error('Calling BulkForm::__construct() with the $entity_repository argument is supported in drupal:8.7.0 and will be required before drupal:9.0.0. See https://www.drupal.org/node/2549139.', E_USER_DEPRECATED);
-      $entity_repository = \Drupal::service('entity.repository');
-    }
     $this->entityRepository = $entity_repository;
   }
 
@@ -169,15 +159,6 @@ class BulkForm extends FieldPluginBase implements CacheableDependencyInterface {
    */
   public function getEntityTypeId() {
     return $this->getEntityType();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getEntityManager() {
-    // This relies on DeprecatedServicePropertyTrait to trigger a deprecation
-    // message in case it is accessed.
-    return $this->entityManager;
   }
 
   /**
@@ -308,17 +289,24 @@ class BulkForm extends FieldPluginBase implements CacheableDependencyInterface {
       // Render checkboxes for all rows.
       $form[$this->options['id']]['#tree'] = TRUE;
       foreach ($this->view->result as $row_index => $row) {
-        $entity = $this->getEntityTranslation($this->getEntity($row), $row);
+        $entity = $this->getEntity($row);
+        if ($entity !== NULL) {
+          $entity = $this->getEntityTranslationByRelationship($entity, $row);
 
-        $form[$this->options['id']][$row_index] = [
-          '#type' => 'checkbox',
-          // We are not able to determine a main "title" for each row, so we can
-          // only output a generic label.
-          '#title' => $this->t('Update this item'),
-          '#title_display' => 'invisible',
-          '#default_value' => !empty($form_state->getValue($this->options['id'])[$row_index]) ? 1 : NULL,
-          '#return_value' => $this->calculateEntityBulkFormKey($entity, $use_revision),
-        ];
+          $form[$this->options['id']][$row_index] = [
+            '#type' => 'checkbox',
+            // We are not able to determine a main "title" for each row, so we
+            // can only output a generic label.
+            '#title' => $this->t('Update this item'),
+            '#title_display' => 'invisible',
+            '#default_value' => !empty($form_state->getValue($this->options['id'])[$row_index]) ? 1 : NULL,
+            '#return_value' => $this->calculateEntityBulkFormKey($entity, $use_revision),
+          ];
+        }
+        else {
+          $form[$this->options['id']][$row_index] = [];
+        }
+
       }
 
       // Replace the form submit button label.
@@ -339,6 +327,7 @@ class BulkForm extends FieldPluginBase implements CacheableDependencyInterface {
         '#type' => 'select',
         '#title' => $this->options['action_title'],
         '#options' => $this->getBulkOptions(),
+        '#empty_option' => $this->t('- Select -'),
       ];
 
       // Duplicate the form actions into the action container in the header.
@@ -462,12 +451,27 @@ class BulkForm extends FieldPluginBase implements CacheableDependencyInterface {
   }
 
   /**
+   * Returns the message that is displayed when no action is selected.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   Message displayed when no action is selected.
+   */
+  protected function emptyActionMessage(): TranslatableMarkup {
+    return $this->t('No %title option selected.', ['%title' => $this->options['action_title']]);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function viewsFormValidate(&$form, FormStateInterface $form_state) {
     $ids = $form_state->getValue($this->options['id']);
     if (empty($ids) || empty(array_filter($ids))) {
       $form_state->setErrorByName('', $this->emptySelectedMessage());
+    }
+
+    $action = $form_state->getValue('action');
+    if (empty($action)) {
+      $form_state->setErrorByName('', $this->emptyActionMessage());
     }
   }
 

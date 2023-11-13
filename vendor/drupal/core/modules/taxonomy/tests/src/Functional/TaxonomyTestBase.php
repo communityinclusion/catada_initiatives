@@ -19,12 +19,12 @@ abstract class TaxonomyTestBase extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['taxonomy', 'block'];
+  protected static $modules = ['taxonomy', 'block'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->drupalPlaceBlock('system_breadcrumb_block');
 

@@ -19,7 +19,7 @@ class MigrateForumTest extends MigrateNodeTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'comment',
     'forum',
     'menu_ui',
@@ -29,7 +29,7 @@ class MigrateForumTest extends MigrateNodeTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installEntitySchema('comment');
@@ -47,6 +47,13 @@ class MigrateForumTest extends MigrateNodeTestBase {
       'd6_comment',
       'd6_term_node',
     ]);
+  }
+
+  /**
+   * Gets the path to the fixture file.
+   */
+  protected function getFixtureFilePath() {
+    return __DIR__ . '/../../../../fixtures/drupal6.php';
   }
 
   /**

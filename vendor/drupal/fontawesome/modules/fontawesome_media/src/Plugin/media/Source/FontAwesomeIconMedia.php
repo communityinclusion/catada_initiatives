@@ -16,7 +16,10 @@ use Drupal\fontawesome\Plugin\Field\FieldType\FontAwesomeIcon;
  *   label = @Translation("Font Awesome Icon"),
  *   description = @Translation("Use a Font Awesome Icon for reusable media."),
  *   allowed_field_types = {"fontawesome_icon"},
- *   default_thumbnail_filename = "generic.png"
+ *   default_thumbnail_filename = "generic.png",
+ *   forms = {
+ *     "media_library_add" = "\Drupal\fontawesome_media\Form\FontawesomeMediaAddForm",
+ *   }
  * )
  */
 class FontAwesomeIconMedia extends MediaSourceBase {
@@ -89,6 +92,10 @@ class FontAwesomeIconMedia extends MediaSourceBase {
 
       case 'fad':
         $srcFolder = 'duotone';
+        break;
+
+      case 'fat':
+        $srcFolder = 'thin';
         break;
 
       case 'fak':

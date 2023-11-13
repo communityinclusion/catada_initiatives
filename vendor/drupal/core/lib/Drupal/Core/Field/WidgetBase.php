@@ -19,8 +19,6 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface, ContainerFactoryPluginInterface {
 
-  use AllowedTagsXssTrait;
-
   /**
    * The field definition.
    *
@@ -86,10 +84,10 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
     // displaying an individual element, just get a single form element and make
     // it the $delta value.
     if ($this->handlesMultipleValues() || isset($get_delta)) {
-      $delta = isset($get_delta) ? $get_delta : 0;
+      $delta = $get_delta ?? 0;
       $element = [
         '#title' => $this->fieldDefinition->getLabel(),
-        '#description' => FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription())),
+        '#description' => $this->getFilteredDescription(),
       ];
       $element = $this->formSingleElement($items, $delta, $element, $form, $form_state);
 
@@ -113,23 +111,10 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
       $elements = $this->formMultipleElements($items, $form, $form_state);
     }
 
-    // Allow modules to alter the field multi-value widget form element.
-    // This hook can also be used for single-value fields.
-    $context = [
-      'form' => $form,
-      'widget' => $this,
-      'items' => $items,
-      'default' => $this->isDefaultValueWidget($form_state),
-    ];
-    \Drupal::moduleHandler()->alter([
-      'field_widget_multivalue_form',
-      'field_widget_multivalue_' . $this->getPluginId() . '_form',
-    ], $elements, $form_state, $context);
-
     // Populate the 'array_parents' information in $form_state->get('field')
     // after the form is built, so that we catch changes in the form structure
     // performed in alter() hooks.
-    $elements['#after_build'][] = [get_class($this), 'afterBuild'];
+    $elements['#after_build'][] = [static::class, 'afterBuild'];
     $elements['#field_name'] = $field_name;
     $elements['#field_parents'] = $parents;
     // Enforce the structure of submitted values.
@@ -137,7 +122,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
     // Most widgets need their internal structure preserved in submitted values.
     $elements += ['#tree' => TRUE];
 
-    return [
+    $field_widget_complete_form = [
       // Aid in theming of widgets by rendering a classified container.
       '#type' => 'container',
       // Assign a different parent, to keep the main id for the widget itself.
@@ -151,6 +136,17 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
       ],
       'widget' => $elements,
     ];
+
+    // Allow modules to alter the field widget form element.
+    $context = [
+      'form' => $form,
+      'widget' => $this,
+      'items' => $items,
+      'default' => $this->isDefaultValueWidget($form_state),
+    ];
+    \Drupal::moduleHandler()->alter(['field_widget_complete_form', 'field_widget_complete_' . $this->getPluginId() . '_form'], $field_widget_complete_form, $form_state, $context);
+
+    return $field_widget_complete_form;
   }
 
   /**
@@ -181,7 +177,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
     }
 
     $title = $this->fieldDefinition->getLabel();
-    $description = FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
+    $description = $this->getFilteredDescription();
 
     $elements = [];
 
@@ -255,9 +251,9 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
           '#value' => t('Add another item'),
           '#attributes' => ['class' => ['field-add-more-submit']],
           '#limit_validation_errors' => [array_merge($parents, [$field_name])],
-          '#submit' => [[get_class($this), 'addMoreSubmit']],
+          '#submit' => [[static::class, 'addMoreSubmit']],
           '#ajax' => [
-            'callback' => [get_class($this), 'addMoreAjax'],
+            'callback' => [static::class, 'addMoreAjax'],
             'wrapper' => $wrapper_id,
             'effect' => 'fade',
           ],
@@ -323,8 +319,8 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
 
     // Add a DIV around the delta receiving the Ajax effect.
     $delta = $element['#max_delta'];
-    $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . (isset($element[$delta]['#prefix']) ? $element[$delta]['#prefix'] : '');
-    $element[$delta]['#suffix'] = (isset($element[$delta]['#suffix']) ? $element[$delta]['#suffix'] : '') . '</div>';
+    $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . ($element[$delta]['#prefix'] ?? '');
+    $element[$delta]['#suffix'] = ($element[$delta]['#suffix'] ?? '') . '</div>';
 
     return $element;
   }
@@ -352,7 +348,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
         'delta' => $delta,
         'default' => $this->isDefaultValueWidget($form_state),
       ];
-      \Drupal::moduleHandler()->alter(['field_widget_form', 'field_widget_' . $this->getPluginId() . '_form'], $element, $form_state, $context);
+      \Drupal::moduleHandler()->alter(['field_widget_single_element_form', 'field_widget_single_element_' . $this->getPluginId() . '_form'], $element, $form_state, $context);
     }
 
     return $element;
@@ -396,7 +392,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
       // Put delta mapping in $form_state, so that flagErrors() can use it.
       $field_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
       foreach ($items as $delta => $item) {
-        $field_state['original_deltas'][$delta] = isset($item->_original_delta) ? $item->_original_delta : $delta;
+        $field_state['original_deltas'][$delta] = $item->_original_delta ?? $delta;
         unset($item->_original_delta, $item->_weight);
       }
       static::setWidgetState($form['#parents'], $field_name, $form_state, $field_state);
@@ -422,7 +418,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
       $element_path = implode('][', $element['#parents']);
       if ($reported_errors = $form_state->getErrors()) {
         foreach (array_keys($reported_errors) as $error_path) {
-          if (strpos($error_path, $element_path) === 0) {
+          if (str_starts_with($error_path, $element_path)) {
             return;
           }
         }
@@ -434,6 +430,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
 
         $violations_by_delta = $item_list_violations = [];
         foreach ($violations as $violation) {
+          $violation = new InternalViolation($violation);
           // Separate violations by delta.
           $property_path = explode('.', $violation->getPropertyPath());
           $delta = array_shift($property_path);
@@ -444,6 +441,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
           else {
             $item_list_violations[] = $violation;
           }
+          // @todo Remove BC layer https://www.drupal.org/i/3307859 on PHP 8.2.
           $violation->arrayPropertyPath = $property_path;
         }
 
@@ -460,7 +458,6 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
             $delta_element = $element[$original_delta];
           }
           foreach ($delta_violations as $violation) {
-            // @todo: Pass $violation->arrayPropertyPath as property path.
             $error_element = $this->errorElement($delta_element, $violation, $form, $form_state);
             if ($error_element !== FALSE) {
               $form_state->setError($error_element, $violation->getMessage());
@@ -601,7 +598,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface,
    *   The filtered field description, with tokens replaced.
    */
   protected function getFilteredDescription() {
-    return FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
+    return FieldFilteredMarkup::create(\Drupal::token()->replace((string) $this->fieldDefinition->getDescription()));
   }
 
 }

@@ -20,7 +20,7 @@ use Drupal\search_api\Event\MappingForeignRelationshipsEvent;
 use Drupal\search_api\Event\SearchApiEvents;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\SearchApiException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides datasource-independent item change tracking functionality.
@@ -44,7 +44,7 @@ class TrackingHelper implements TrackingHelperInterface {
   /**
    * The event dispatcher.
    *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
    */
   protected $eventDispatcher;
 
@@ -69,7 +69,7 @@ class TrackingHelper implements TrackingHelperInterface {
    *   The entity type manager.
    * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
    *   The language manager.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
    *   The event dispatcher.
    * @param \Drupal\search_api\Utility\FieldsHelperInterface $fieldsHelper
    *   The fields helper.
@@ -88,23 +88,30 @@ class TrackingHelper implements TrackingHelperInterface {
    * {@inheritdoc}
    */
   public function trackReferencedEntityUpdate(EntityInterface $entity, bool $deleted = FALSE) {
+    if (!empty($entity->search_api_skip_tracking)) {
+      return;
+    }
+
     /** @var \Drupal\search_api\IndexInterface[] $indexes */
     $indexes = [];
     try {
       $indexes = $this->entityTypeManager->getStorage('search_api_index')
         ->loadMultiple();
     }
-    // @todo Replace with multi-catch once we depend on PHP 7.1+.
-    catch (InvalidPluginDefinitionException $e) {
-      // Can't really happen, but play it safe to appease static code analysis.
-    }
-    catch (PluginNotFoundException $e) {
+    // @todo Remove $e once we depend on PHP 8.0+.
+    catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
       // Can't really happen, but play it safe to appease static code analysis.
     }
 
     // Original entity, if available.
     $original = $deleted ? NULL : ($entity->original ?? NULL);
     foreach ($indexes as $index) {
+      // Do not track changes to referenced entities if the option has been
+      // disabled.
+      if (!$index->getOption('track_changes_in_references')) {
+        continue;
+      }
+
       // Map of foreign entity relations. Will get lazily populated as soon as
       // we actually need it.
       $map = NULL;
@@ -186,7 +193,7 @@ class TrackingHelper implements TrackingHelperInterface {
       $seen_path_chunks = [];
       $property_definitions = $datasource->getPropertyDefinitions();
       $field_property = Utility::splitPropertyPath($field->getPropertyPath(), FALSE);
-      for (; $field_property[0]; $field_property = Utility::splitPropertyPath($field_property[1], FALSE)) {
+      for (; $field_property[0]; $field_property = Utility::splitPropertyPath($field_property[1] ?? '', FALSE)) {
         $property_definition = $this->fieldsHelper->retrieveNestedProperty($property_definitions, $field_property[0]);
         if (!$property_definition) {
           // Seems like we could not map it from the property path to some Typed
@@ -247,7 +254,7 @@ class TrackingHelper implements TrackingHelperInterface {
     // Let other modules alter this information, potentially adding more
     // relationships.
     $event = new MappingForeignRelationshipsEvent($index, $data, $cacheability);
-    $this->eventDispatcher->dispatch(SearchApiEvents::MAPPING_FOREIGN_RELATIONSHIPS, $event);
+    $this->eventDispatcher->dispatch($event, SearchApiEvents::MAPPING_FOREIGN_RELATIONSHIPS);
 
     $this->cache->set($cid, $data, $cacheability->getCacheMaxAge(), $cacheability->getCacheTags());
 

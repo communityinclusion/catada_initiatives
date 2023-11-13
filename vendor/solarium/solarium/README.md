@@ -10,7 +10,7 @@ Please see the [docs](http://solarium.readthedocs.io/en/stable/) for a more deta
 
 ## Requirements
 
-Solarium 6.1.x only supports PHP 7.3 and up.
+Solarium 6.3.2 and up only supports PHP 8.0 and up.
 
 It's highly recommended to have cURL enabled in your PHP environment. However if you don't have cURL available you can
 switch from using cURL (the default) to a pure PHP based HTTP client adapter which works for the essential stuff but
@@ -28,48 +28,21 @@ Example:
 composer require solarium/solarium
 ```
 
-### Pitfall when using PHP versions prior to PHP 8.0
+### Pitfall when upgrading to 6.3.2
 
-If you are using a PHP version prior to PHP 8.0 *and* a locale that uses a decimal separator that's different
-from a decimal point, float values are sent in a way that Solr doesn't understand. This is due to the string
-representation of floats in those PHP versions.
+Support for PHP 7 was removed in Solarium 6.3.2. Upgrade to PHP 8 first to use the latest Solarium version.
 
-You can work around this by setting the `'C'` locale before creating and sending requests to Solr. Don't forget
-to set it back to the original value if your application is locale-dependent.
+### Pitfall when upgrading to 6.3
 
-```php
-// make sure floats use "." as decimal separator
-$currentLocale = setlocale(LC_NUMERIC, 0);
-setlocale(LC_NUMERIC, 'C');
+With Solarium 6.3 update queries use the JSON request format by default.
 
-/*
- * Create and send the requests you want Solarium to send.
- */
-
-// restore the locale
-setlocale(LC_NUMERIC, $currentLocale);
-```
-
-PHP 8.0 has made the float to string conversion locale-independent and will always use the `.` decimal separator.
-The workaround is no longer necessary with PHP versions ≥ 8.0.
-
-### Future pitfall when upgrading to 7.x
-
-Solarium 7 will change the default request format for update queries from XML to JSON.
-
-You can already test your code with JSON requests to ensure a seamless transition.
+If you do require XML specific functionality, set the request format to XML explicitly.
 
 ```php
 // get an update query instance
 $update = $client->createUpdate();
 
-// set JSON request format
-$update->setRequestFormat($update::REQUEST_FORMAT_JSON);
-```
-
-If you do require XML specific functionality, set the request format to XML explicitly instead to avoid issues when upgrading.
-
-```php
+// set XML request format
 $update->setRequestFormat($update::REQUEST_FORMAT_XML);
 ```
 
@@ -110,15 +83,32 @@ $client = new Solarium\Client($adapter, $eventDispatcher, $options);
 
 The Symfony EventDispatcher is also no longer automatically available for autoloading.
 If you want to keep using it, you can add it to your project's `composer.json`.
-Alternatively you can use any PSR-14 compatible event dispatcher.
+Alternatively you can use any [PSR-14](https://www.php-fig.org/psr/psr-14/) compatible event dispatcher.
 
 ```json
 {
     "require": {
-        "solarium/solarium": "~6.2",
-        "symfony/event-dispatcher": "^4.3 || ^5.0 || ^6.0"
+        "solarium/solarium": "~6.3",
+        "symfony/event-dispatcher": "^5.0 || ^6.0"
     }
 }
+```
+
+#### Adapters
+
+The `Zend2HttpAdapter`, `GuzzleAdapter`, and `Guzzle3Adapter` were removed in Solarium 6.
+You can use the `Psr18Adapter` with any [PSR-18](https://www.php-fig.org/psr/psr-18/) compliant HTTP client instead.
+
+Example:
+```sh
+composer require php-http/guzzle7-adapter
+composer require nyholm/psr7
+```
+
+```php
+$httpClient = new Http\Adapter\Guzzle7\Client();
+$factory = new Nyholm\Psr7\Factory\Psr17Factory();
+$adapter = new Solarium\Core\Client\Adapter\Psr18Adapter($httpClient, $factory, $factory);
 ```
 
 #### Local parameter names
@@ -156,7 +146,7 @@ In the past, the V1 API endpoint `solr` was not added automatically, so most use
 This bug was discovered with the addition of V2 API support. In almost every setup, the path has to be set to `/`
 instead of `/solr` with this release!
 
-For the same reason it is a must to explicit configure the _core_ or _collection_.
+For the same reason it is a must to explicitly configure the _core_ or _collection_.
 
 So an old setting like
 ```
@@ -218,6 +208,4 @@ You can run the tests in a Windows environment. For all of them to pass, you mus
 
 * [![Run Tests](https://github.com/solariumphp/solarium/workflows/Run%20Tests/badge.svg)](https://github.com/solariumphp/solarium/actions)
 * [![codecov](https://codecov.io/gh/solariumphp/solarium/branch/master/graph/badge.svg)](https://codecov.io/gh/solariumphp/solarium)
-* [![SensioLabsInsight](https://insight.sensiolabs.com/projects/292e29f7-10a9-4685-b9ac-37925ebef9ae/small.png)](https://insight.sensiolabs.com/projects/292e29f7-10a9-4685-b9ac-37925ebef9ae)
 * [![Total Downloads](https://poser.pugx.org/solarium/solarium/downloads.svg)](https://packagist.org/packages/solarium/solarium)
-

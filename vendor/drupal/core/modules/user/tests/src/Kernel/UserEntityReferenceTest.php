@@ -33,7 +33,7 @@ class UserEntityReferenceTest extends EntityKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->role1 = Role::create([
@@ -65,15 +65,16 @@ class UserEntityReferenceTest extends EntityKernelTestBase {
     $field_definition->setSetting('handler_settings', $handler_settings);
     $field_definition->save();
 
-    $user1 = $this->createUser(['name' => 'aabb']);
+    // cspell:ignore aabb aabbb aabbbb aabbbb
+    $user1 = $this->createUser([], 'aabb');
     $user1->addRole($this->role1->id());
     $user1->save();
 
-    $user2 = $this->createUser(['name' => 'aabbb']);
+    $user2 = $this->createUser([], 'aabbb');
     $user2->addRole($this->role1->id());
     $user2->save();
 
-    $user3 = $this->createUser(['name' => 'aabbbb']);
+    $user3 = $this->createUser([], 'aabbbb');
     $user3->addRole($this->role2->id());
     $user3->save();
 

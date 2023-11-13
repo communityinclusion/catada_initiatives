@@ -50,6 +50,11 @@ class BaseFieldOverride extends FieldConfigBase {
   protected $baseFieldDefinition;
 
   /**
+   * The original override.
+   */
+  public BaseFieldOverride $original;
+
+  /**
    * Creates a base field override object.
    *
    * @param \Drupal\Core\Field\BaseFieldDefinition $base_field_definition
@@ -138,6 +143,13 @@ class BaseFieldOverride extends FieldConfigBase {
    */
   public function isComputed() {
     return $this->getBaseFieldDefinition()->isComputed();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isInternal(): bool {
+    return $this->getBaseFieldDefinition()->isInternal();
   }
 
   /**
@@ -233,7 +245,7 @@ class BaseFieldOverride extends FieldConfigBase {
    * @param string $field_name
    *   Name of the field.
    *
-   * @return static
+   * @return \Drupal\Core\Field\FieldConfigInterface|null
    *   The base field bundle override config entity if one exists for the
    *   provided field name, otherwise NULL.
    */

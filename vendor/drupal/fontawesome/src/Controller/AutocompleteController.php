@@ -65,13 +65,22 @@ class AutocompleteController extends ControllerBase {
       $configuration_settings = $this->configFactory->get('fontawesome.settings');
 
       // Determine which files we are using.
-      $activeFiles = [
-        'use_solid_file' => is_null($configuration_settings->get('use_solid_file')) === TRUE ? TRUE : $configuration_settings->get('use_solid_file'),
-        'use_regular_file' => is_null($configuration_settings->get('use_regular_file')) === TRUE ? TRUE : $configuration_settings->get('use_regular_file'),
-        'use_light_file' => is_null($configuration_settings->get('use_light_file')) === TRUE ? TRUE : $configuration_settings->get('use_light_file'),
-        'use_brands_file' => is_null($configuration_settings->get('use_brands_file')) === TRUE ? TRUE : $configuration_settings->get('use_brands_file'),
-        'use_duotone_file' => is_null($configuration_settings->get('use_duotone_file')) === TRUE ? TRUE : $configuration_settings->get('use_duotone_file'),
-      ];
+      $activeFiles = [];
+      foreach ([
+        'solid',
+        'regular',
+        'light',
+        'brands',
+        'duotone',
+        'thin',
+        'sharpregular',
+        'sharplight',
+        'sharpsolid',
+        'custom',
+      ] as $type) {
+        $settingName = 'use_' . $type . '_file';
+        $activeFiles[$settingName] = is_null($configuration_settings->get($settingName)) === TRUE ? TRUE : $configuration_settings->get($settingName);
+      }
 
       // Check each icon to see if it starts with the typed string.
       foreach ($iconData as $thisIcon) {
@@ -90,7 +99,7 @@ class AutocompleteController extends ControllerBase {
                 if (!$activeFiles['use_brands_file']) {
                   break;
                 }
-                $iconPrefix = 'fab';
+                $iconPrefix = 'fa-brands';
                 break;
 
               case 'light':
@@ -98,7 +107,7 @@ class AutocompleteController extends ControllerBase {
                 if (!$activeFiles['use_light_file']) {
                   break;
                 }
-                $iconPrefix = 'fal';
+                $iconPrefix = 'fa-light';
                 break;
 
               case 'regular':
@@ -106,7 +115,7 @@ class AutocompleteController extends ControllerBase {
                 if (!$activeFiles['use_regular_file']) {
                   break;
                 }
-                $iconPrefix = 'far';
+                $iconPrefix = 'fa-regular';
                 break;
 
               case 'duotone':
@@ -114,11 +123,43 @@ class AutocompleteController extends ControllerBase {
                 if (!$activeFiles['use_duotone_file']) {
                   break;
                 }
-                $iconPrefix = 'fad';
+                $iconPrefix = 'fa-duotone';
+                break;
+
+              case 'thin':
+                // Don't show if unavailable.
+                if (!$activeFiles['use_thin_file']) {
+                  break;
+                }
+                $iconPrefix = 'fa-thin';
+                break;
+
+              case 'sharpregular':
+                // Don't show if unavailable.
+                if (!$activeFiles['use_sharpregular_file']) {
+                  break;
+                }
+                $iconPrefix = 'fa-sharp fa-regular';
+                break;
+
+              case 'sharpsolid':
+                // Don't show if unavailable.
+                if (!$activeFiles['use_sharpsolid_file']) {
+                  break;
+                }
+                $iconPrefix = 'fa-sharp fa-solid';
+                break;
+
+              case 'sharplight':
+                // Don't show if unavailable.
+                if (!$activeFiles['use_sharplight_file']) {
+                  break;
+                }
+                $iconPrefix = 'fa-sharp fa-light';
                 break;
 
               case 'kit_uploads':
-                $iconPrefix = 'fak';
+                $iconPrefix = 'fa-kit';
                 break;
 
               default:
@@ -127,7 +168,7 @@ class AutocompleteController extends ControllerBase {
                 if (!$activeFiles['use_solid_file']) {
                   break;
                 }
-                $iconPrefix = 'fas';
+                $iconPrefix = 'fa-solid';
                 break;
             }
             // Render the icon.
@@ -148,6 +189,11 @@ class AutocompleteController extends ControllerBase {
             'value' => $thisIcon['name'],
             'label' => implode('', $iconRenders) . $thisIcon['name'],
           ];
+
+          // Cap the results if this is a single character.
+          if (strlen($typed_string) == 1 && count($results) >= 25) {
+            break;
+          }
         }
       }
     }

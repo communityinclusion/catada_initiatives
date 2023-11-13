@@ -42,7 +42,7 @@ class BuildTestTest extends BuildTestBase {
       'autoload.php',
       'composer.json',
       'index.php',
-      'README.txt',
+      'README.md',
       '.git',
       '.ht.router.php',
     ];
@@ -95,7 +95,7 @@ class BuildTestTest extends BuildTestBase {
     // Mock BuildTestBase so that it thinks our VFS is the Drupal root.
     /** @var \PHPUnit\Framework\MockObject\MockBuilder|\Drupal\BuildTests\Framework\BuildTestBase $base */
     $base = $this->getMockBuilder(BuildTestBase::class)
-      ->setMethods(['getDrupalRoot'])
+      ->onlyMethods(['getDrupalRoot'])
       ->getMockForAbstractClass();
     $base->expects($this->exactly(2))
       ->method('getDrupalRoot')
@@ -163,7 +163,6 @@ class BuildTestTest extends BuildTestBase {
 
     // Get the process object for the server.
     $ref_process = new \ReflectionProperty(parent::class, 'serverProcess');
-    $ref_process->setAccessible(TRUE);
     $first_process = $ref_process->getValue($this);
 
     // Standing up the server again should not change the server process.

@@ -20,12 +20,12 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['conneg_test', 'path_alias'];
+  protected static $modules = ['conneg_test', 'path_alias'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installEntitySchema('path_alias');
@@ -104,11 +104,8 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
       /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $kernel */
       $kernel = \Drupal::getContainer()->get('http_kernel');
       $response = $kernel->handle($request);
-      // Verbose message since simpletest doesn't let us provide a message and
-      // see the error.
-      $this->assertTrue(TRUE, $message);
-      $this->assertEqual($response->getStatusCode(), Response::HTTP_OK);
-      $this->assertStringContainsString($content_type, $response->headers->get('Content-type'));
+      $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), $message);
+      $this->assertStringContainsString($content_type, $response->headers->get('Content-type'), $message);
     }
   }
 
@@ -117,7 +114,6 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
    */
   public function testFullNegotiation() {
     $this->enableModules(['accept_header_routing_test']);
-    \Drupal::service('router.builder')->rebuild();
     $tests = [
       // ['path', 'accept', 'content-type'],
 
@@ -142,7 +138,7 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
       /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $kernel */
       $kernel = \Drupal::getContainer()->get('http_kernel');
       $response = $kernel->handle($request);
-      $this->assertEqual($response->getStatusCode(), Response::HTTP_OK, "Testing path:$path Accept:$accept_header Content-type:$content_type");
+      $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), "Testing path:{$path} Accept:{$accept_header} Content-type:{$content_type}");
     }
   }
 

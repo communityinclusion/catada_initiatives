@@ -223,7 +223,9 @@ class FormValidator implements FormValidatorInterface {
    *   not be repeated in the submission step.
    * @param $form_id
    *   A unique string identifying the form for validation, submission,
-   *   theming, and hook_form_alter functions.
+   *   theming, and hook_form_alter functions. Is only present on the initial
+   *   call to the method, which receives the entire form array as the $element,
+   *   and not on recursive calls.
    */
   protected function doValidateForm(&$elements, FormStateInterface &$form_state, $form_id = NULL) {
     // Recurse through all children, sorting the elements so that the order of
@@ -333,6 +335,8 @@ class FormValidator implements FormValidatorInterface {
     }
 
     if (isset($elements['#options']) && isset($elements['#value'])) {
+      $name = empty($elements['#title']) ? $elements['#parents'][0] : $elements['#title'];
+      $message_arguments = ['%name' => $name];
       if ($elements['#type'] == 'select') {
         $options = OptGroup::flattenOptions($elements['#options']);
       }
@@ -343,8 +347,9 @@ class FormValidator implements FormValidatorInterface {
         $value = in_array($elements['#type'], ['checkboxes', 'tableselect']) ? array_keys($elements['#value']) : $elements['#value'];
         foreach ($value as $v) {
           if (!isset($options[$v])) {
-            $form_state->setError($elements, $this->t('An illegal choice has been detected. Please contact the site administrator.'));
-            $this->logger->error('Illegal choice %choice in %name element.', ['%choice' => $v, '%name' => empty($elements['#title']) ? $elements['#parents'][0] : $elements['#title']]);
+            $message_arguments['%choice'] = $v;
+            $form_state->setError($elements, $this->t('The submitted value %choice in the %name element is not allowed.', $message_arguments));
+            $this->logger->error('The submitted value %choice in the %name element is not allowed.', $message_arguments);
           }
         }
       }
@@ -362,8 +367,9 @@ class FormValidator implements FormValidatorInterface {
         $form_state->setValueForElement($elements, NULL);
       }
       elseif (!isset($options[$elements['#value']])) {
-        $form_state->setError($elements, $this->t('An illegal choice has been detected. Please contact the site administrator.'));
-        $this->logger->error('Illegal choice %choice in %name element.', ['%choice' => $elements['#value'], '%name' => empty($elements['#title']) ? $elements['#parents'][0] : $elements['#title']]);
+        $message_arguments['%choice'] = $elements['#value'];
+        $form_state->setError($elements, $this->t('The submitted value %choice in the %name element is not allowed.', $message_arguments));
+        $this->logger->error('The submitted value %choice in the %name element is not allowed.', $message_arguments);
       }
     }
   }

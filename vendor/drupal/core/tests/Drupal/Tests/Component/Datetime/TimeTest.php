@@ -34,7 +34,7 @@ class TimeTest extends TestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->requestStack = $this->getMockBuilder('Symfony\Component\HttpFoundation\RequestStack')->getMock();
@@ -128,7 +128,7 @@ namespace Drupal\Component\Datetime;
 /**
  * Shadow time() system call.
  *
- * @returns int
+ * @return int
  */
 function time() {
   return 12345678;
@@ -137,7 +137,7 @@ function time() {
 /**
  * Shadow microtime system call.
  *
- * @returns float
+ * @return float
  */
 function microtime() {
   return 1234567.89;

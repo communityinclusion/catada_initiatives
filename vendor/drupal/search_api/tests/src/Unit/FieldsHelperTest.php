@@ -6,10 +6,12 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\TypedData\ComplexDataDefinitionInterface;
+use Drupal\Core\TypedData\ComplexDataInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\Core\TypedData\DataDefinitionInterface;
 use Drupal\search_api\Utility\DataTypeHelperInterface;
 use Drupal\search_api\Utility\FieldsHelper;
+use Drupal\search_api\Utility\ThemeSwitcherInterface;
 use Drupal\Tests\UnitTestCase;
 
 /**
@@ -31,14 +33,21 @@ class FieldsHelperTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $entity_type_manager = $this->createMock(EntityTypeManagerInterface::class);
     $entity_field_manager = $this->createMock(EntityFieldManagerInterface::class);
     $entity_type_info = $this->createMock(EntityTypeBundleInfoInterface::class);
     $data_type_helper = $this->createMock(DataTypeHelperInterface::class);
-    $this->fieldsHelper = new FieldsHelper($entity_type_manager, $entity_field_manager, $entity_type_info, $data_type_helper);
+    $theme_switcher = $this->createMock(ThemeSwitcherInterface::class);
+    $this->fieldsHelper = new FieldsHelper(
+      $entity_type_manager,
+      $entity_field_manager,
+      $entity_type_info,
+      $data_type_helper,
+      $theme_switcher,
+    );
   }
 
   /**
@@ -47,7 +56,7 @@ class FieldsHelperTest extends UnitTestCase {
    * @covers ::extractFieldValues
    */
   public function testExtractFieldValues() {
-    $field_data = $this->createMock(TestComplexDataInterface::class);
+    $field_data = $this->createMock(ComplexDataInterface::class);
 
     $field_data_definition = $this->createMock(ComplexDataDefinitionInterface::class);
     $field_data_definition->expects($this->any())
@@ -84,7 +93,7 @@ class FieldsHelperTest extends UnitTestCase {
         [TRUE, ['value' => $value]],
       ]);
 
-    $this->assertArrayEquals(['asd'], $this->fieldsHelper->extractFieldValues($field_data));
+    $this->assertEquals(['asd'], $this->fieldsHelper->extractFieldValues($field_data));
   }
 
 }

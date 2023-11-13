@@ -21,7 +21,7 @@ class JSMessageTestController {
    * Gets the test messages selectors.
    *
    * @return string[]
-   *   The test test messages selectors.
+   *   The test messages selectors.
    *
    * @see core/modules/system/tests/themes/test_messages/templates/status-messages.html.twig
    */
@@ -30,7 +30,23 @@ class JSMessageTestController {
   }
 
   /**
-   * Displays links to show messages via Javascript.
+   * Displays links to show messages via JavaScript with messages from backend.
+   *
+   * @return array
+   *   Render array for links.
+   */
+  public function messageLinksWithSystemMessages() {
+    // Add PHP rendered messages to the page.
+    $messenger = \Drupal::messenger();
+    $messenger->addStatus('PHP Status');
+    $messenger->addWarning('PHP Warning');
+    $messenger->addError('PHP Error');
+
+    return $this->messageLinks();
+  }
+
+  /**
+   * Displays links to show messages via JavaScript.
    *
    * @return array
    *   Render array for links.

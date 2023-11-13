@@ -126,7 +126,7 @@ class DateTimePlus {
   /**
    * Creates a date object from an input date object.
    *
-   * @param \DateTime $datetime
+   * @param \DateTimeInterface $datetime
    *   A DateTime object.
    * @param array $settings
    *   (optional) A keyed array for settings, suitable for passing on to
@@ -135,7 +135,7 @@ class DateTimePlus {
    * @return static
    *   A new DateTimePlus object.
    */
-  public static function createFromDateTime(\DateTime $datetime, $settings = []) {
+  public static function createFromDateTime(\DateTimeInterface $datetime, $settings = []) {
     return new static($datetime->format(static::FORMAT), $datetime->getTimezone(), $settings);
   }
 
@@ -253,21 +253,15 @@ class DateTimePlus {
       throw new \InvalidArgumentException('The date cannot be created from a format.');
     }
     else {
+      $datetimeplus->setTimestamp($date->getTimestamp());
+      $datetimeplus->setTimezone($date->getTimezone());
+
       // Functions that parse date is forgiving, it might create a date that
       // is not exactly a match for the provided value, so test for that by
       // re-creating the date/time formatted string and comparing it to the input. For
       // instance, an input value of '11' using a format of Y (4 digits) gets
       // created as '0011' instead of '2011'.
-      if ($date instanceof DateTimePlus) {
-        $test_time = $date->format($format, $settings);
-      }
-      elseif ($date instanceof \DateTime) {
-        $test_time = $date->format($format);
-      }
-      $datetimeplus->setTimestamp($date->getTimestamp());
-      $datetimeplus->setTimezone($date->getTimezone());
-
-      if ($settings['validate_format'] && $test_time != $time) {
+      if ($settings['validate_format'] && $date->format($format) != $time) {
         throw new \UnexpectedValueException('The created date does not match the input value.');
       }
     }
@@ -360,7 +354,7 @@ class DateTimePlus {
       throw new \Exception('DateTime object not set.');
     }
     if (!method_exists($this->dateTimeObject, $method)) {
-      throw new \BadMethodCallException(sprintf('Call to undefined method %s::%s()', get_class($this), $method));
+      throw new \BadMethodCallException(sprintf('Call to undefined method %s::%s()', static::class, $method));
     }
 
     $result = call_user_func_array([$this->dateTimeObject, $method], $args);
@@ -399,7 +393,7 @@ class DateTimePlus {
    */
   public static function __callStatic($method, $args) {
     if (!method_exists('\DateTime', $method)) {
-      throw new \BadMethodCallException(sprintf('Call to undefined method %s::%s()', get_called_class(), $method));
+      throw new \BadMethodCallException(sprintf('Call to undefined method %s::%s()', static::class, $method));
     }
     return call_user_func_array(['\DateTime', $method], $args);
   }

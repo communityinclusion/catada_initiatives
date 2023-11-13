@@ -81,7 +81,7 @@ class ProjectInfo {
       // which is left alone by tar and correctly set to the time the .info.yml
       // file was unpacked.
       if (!isset($file->info['_info_file_ctime'])) {
-        $file->info['_info_file_ctime'] = $file->getCTime();
+        $file->info['_info_file_ctime'] = $file->getFileInfo()->getCTime();
       }
 
       if (!isset($file->info['datestamp'])) {
@@ -130,7 +130,7 @@ class ProjectInfo {
       }
       elseif (empty($status)) {
         // If we have a project_name that matches, but the project_display_type
-        // does not, it means we're processing a uninstalled module or theme
+        // does not, it means we're processing an uninstalled module or theme
         // that belongs to a project that has some enabled code. In this case,
         // we add the uninstalled thing into a separate array for separate
         // display.
@@ -153,7 +153,7 @@ class ProjectInfo {
     if (isset($file->info['project'])) {
       $project_name = $file->info['project'];
     }
-    elseif (strpos($file->getPath(), 'core/modules') === 0) {
+    elseif (str_starts_with($file->getPath(), 'core/modules')) {
       $project_name = 'drupal';
     }
     return $project_name;
@@ -169,7 +169,7 @@ class ProjectInfo {
    *   (optional) Array of additional elements to be collected from the .info.yml
    *   file. Defaults to array().
    *
-   * @return
+   * @return array
    *   Array of .info.yml file data we need for the update manager.
    *
    * @see \Drupal\Core\Utility\ProjectInfo::processInfoList()

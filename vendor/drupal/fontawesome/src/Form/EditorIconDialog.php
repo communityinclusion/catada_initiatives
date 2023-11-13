@@ -82,7 +82,11 @@ class EditorIconDialog extends FormBase {
       '#type' => 'container',
       '#attributes' => [],
       '#children' => $this->t('For more information on icon selection, see @iconLink. If an icon below is displayed with a question mark, it is likely a Font Awesome Pro icon, unavailable with the free version of Font Awesome.', [
-        '@iconLink' => Link::fromTextAndUrl($this->t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons'))->toString(),
+        '@iconLink' => Link::fromTextAndUrl($this->t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ]))->toString(),
       ]),
     ];
 
@@ -93,7 +97,11 @@ class EditorIconDialog extends FormBase {
       '#field_prefix' => 'fa-',
       '#default_value' => '',
       '#description' => $this->t('Name of the Font Awesome Icon. See @iconsLink for valid icon names, or begin typing for an autocomplete list.', [
-        '@iconsLink' => Link::fromTextAndUrl($this->t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons'))->toString(),
+        '@iconsLink' => Link::fromTextAndUrl($this->t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ]))->toString(),
       ]),
       '#autocomplete_route_name' => 'fontawesome.autocomplete',
       '#element_validate' => [
@@ -107,22 +115,41 @@ class EditorIconDialog extends FormBase {
       '#open' => FALSE,
       '#title' => $this->t('Additional Font Awesome Settings'),
     ];
-    // Allow user to determine size.
+
+    // Allow user to determine style.
+    $style_options = [];
+    foreach ([
+      'solid',
+      'regular',
+      'light',
+      'brands',
+      'duotone',
+      'thin',
+      'sharpregular',
+      'sharplight',
+      'sharpsolid',
+      'custom',
+    ] as $iconType) {
+      // Exclude if setting is turned off.
+      $settingName = 'use_' . $iconType . '_file';
+      if (is_null($configuration_settings->get($settingName)) || $configuration_settings->get($settingName)) {
+        $style_options[$iconType] = ucwords(str_replace('sharp', 'sharp ', $iconType));
+      }
+    }
     $form['settings']['style'] = [
       '#type' => 'select',
       '#title' => $this->t('Style'),
       '#description' => $this->t('This changes the style of the icon. Please note that this is not available for all icons, and for some of the icons this is only available in the pro version. If the icon does not render properly in the preview above, the icon does not support that style. Notably, brands do not support any styles. See @iconLink for more information.', [
-        '@iconLink' => Link::fromTextAndUrl($this->t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons'))->toString(),
+        '@iconLink' => Link::fromTextAndUrl($this->t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ]))->toString(),
       ]),
-      '#options' => [
-        'fas' => $this->t('Solid'),
-        'far' => $this->t('Regular'),
-        'fal' => $this->t('Light'),
-        'fad' => $this->t('Duotone'),
-        'fak' => $this->t('Kit Uploads'),
-      ],
-      '#default_value' => 'fas',
+      '#options' => $style_options,
+      '#default_value' => array_keys($style_options)[0],
     ];
+
     // Allow user to determine size.
     $form['settings']['size'] = [
       '#type' => 'select',
@@ -174,7 +201,11 @@ class EditorIconDialog extends FormBase {
       '#type' => 'select',
       '#title' => $this->t('Animation'),
       '#description' => $this->t('Use spin to get any icon to rotate, and pulse to have it rotate with 8 steps. Works especially well with fa-spinner & everything in the @iconLink.', [
-        '@iconLink' => Link::fromTextAndUrl($this->t('spinner icons category'), Url::fromUri('https://fontawesome.com/icons?d=gallery&c=spinners'))->toString(),
+        '@iconLink' => Link::fromTextAndUrl($this->t('spinner icons category'), Url::fromUri('https://fontawesome.com/icons?d=gallery&c=spinners', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ]))->toString(),
       ]),
       '#options' => [
         '' => $this->t('None'),
@@ -204,8 +235,16 @@ class EditorIconDialog extends FormBase {
       '#disabled' => $configuration_settings->get('method') == 'webfonts',
       '#title' => $this->t('Power Transforms'),
       '#description' => $this->t('See @iconLink for additional information on Power Transforms. Note that these transforms only work with the SVG with JS version of Font Awesome and are disabled for Webfonts. See the @adminLink to set your version of Font Awesome.', [
-        '@iconLink' => Link::fromTextAndUrl($this->t('the Font Awesome `Power Transforms` guide'), Url::fromUri('https://fontawesome.com/how-to-use/on-the-web/styling/power-transforms'))->toString(),
-        '@adminLink' => Link::createFromRoute($this->t('admin page'), 'fontawesome.admin_settings')->toString(),
+        '@iconLink' => Link::fromTextAndUrl($this->t('the Font Awesome `Power Transforms` guide'), Url::fromUri('https://fontawesome.com/how-to-use/on-the-web/styling/power-transforms', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ]))->toString(),
+        '@adminLink' => Link::createFromRoute($this->t('admin page'), 'fontawesome.admin_settings', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ])->toString(),
       ]),
     ];
     // Rotate the icon.
@@ -360,7 +399,11 @@ class EditorIconDialog extends FormBase {
     if (!is_numeric($transformSettings['value'])) {
       $form_state->setError($element, t("Invalid value for Font Awesome Power Transform %value. Please see @iconLink for information on correct values.", [
         '%value' => $value,
-        '@iconLink' => Link::fromTextAndUrl(t('the Font Awesome guide to Power Transforms'), Url::fromUri('https://fontawesome.com/how-to-use/on-the-web/styling/power-transforms'))->toString(),
+        '@iconLink' => Link::fromTextAndUrl(t('the Font Awesome guide to Power Transforms'), Url::fromUri('https://fontawesome.com/how-to-use/on-the-web/styling/power-transforms', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ]))->toString(),
       ]));
     }
   }
@@ -393,7 +436,11 @@ class EditorIconDialog extends FormBase {
     if (!isset($iconData['name'])) {
       $form_state->setError($element, t("Invalid icon name %value. Please see @iconLink for correct icon names.", [
         '%value' => $value,
-        '@iconLink' => Link::fromTextAndUrl(t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons'))->toString(),
+        '@iconLink' => Link::fromTextAndUrl(t('the Font Awesome icon list'), Url::fromUri('https://fontawesome.com/icons', [
+          'attributes' => [
+            'target' => '_blank',
+          ],
+        ]))->toString(),
       ]));
     }
   }
@@ -443,6 +490,51 @@ class EditorIconDialog extends FormBase {
       $metadata = $this->fontAwesomeManager->getIconMetadata($item['icon_name']);
       $item['style'] = $this->fontAwesomeManager->determinePrefix($metadata['styles'], $item['settings']['style']);
       unset($item['settings']['style']);
+
+      // Determine the prefix.
+      switch ($item['style']) {
+
+        case 'brands':
+          $item['style'] = 'fa-brands';
+          break;
+
+        case 'light':
+          $item['style'] = 'fa-light';
+          break;
+
+        case 'regular':
+          $item['style'] = 'fa-regular';
+          break;
+
+        case 'duotone':
+          $item['style'] = 'fa-duotone';
+          break;
+
+        case 'thin':
+          $item['style'] = 'fa-thin';
+          break;
+
+        case 'sharpregular':
+          $item['style'] = 'fa-sharp fa-regular';
+          break;
+
+        case 'sharpsolid':
+          $item['style'] = 'fa-sharp fa-solid';
+          break;
+
+        case 'sharplight':
+          $item['style'] = 'fa-sharp fa-light';
+          break;
+
+        case 'kit_uploads':
+          $item['style'] = 'fa-kit';
+          break;
+
+        default:
+        case 'solid':
+          $item['style'] = 'fa-solid';
+          break;
+      }
 
       // Remove blank data.
       $item['settings'] = array_filter($item['settings']);

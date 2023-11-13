@@ -9,12 +9,12 @@ use Drupal\Core\Security\TrustedCallbackInterface;
 class BigPipeTestController implements TrustedCallbackInterface {
 
   /**
-   * Returns a all BigPipe placeholder test case render arrays.
+   * Returns all BigPipe placeholder test case render arrays.
    *
    * @return array
    */
   public function test() {
-    $has_session = \Drupal::service('session_configuration')->hasSession(\Drupal::requestStack()->getMasterRequest());
+    $has_session = \Drupal::service('session_configuration')->hasSession(\Drupal::requestStack()->getMainRequest());
 
     $build = [];
 
@@ -78,6 +78,37 @@ class BigPipeTestController implements TrustedCallbackInterface {
       'item3' => [
         '#lazy_builder' => [static::class . '::counter', []],
         '#create_placeholder' => TRUE,
+      ],
+    ];
+  }
+
+  /**
+   * A page with placeholder preview.
+   *
+   * @return array[]
+   */
+  public function placeholderPreview() {
+    return [
+      'user_container' => [
+        '#type' => 'container',
+        '#attributes' => ['id' => 'placeholder-preview-twig-container'],
+        'user' => [
+          '#lazy_builder' => ['user.toolbar_link_builder:renderDisplayName', []],
+          '#create_placeholder' => TRUE,
+        ],
+      ],
+      'user_links_container' => [
+        '#type' => 'container',
+        '#attributes' => ['id' => 'placeholder-render-array-container'],
+        'user_links' => [
+          '#lazy_builder' => [static::class . '::helloOrYarhar', []],
+          '#create_placeholder' => TRUE,
+          '#lazy_builder_preview' => [
+            '#attributes' => ['id' => 'render-array-preview'],
+            '#type' => 'container',
+            '#markup' => 'There is a lamb and there is a puppy',
+          ],
+        ],
       ],
     ];
   }
@@ -162,7 +193,7 @@ class BigPipeTestController implements TrustedCallbackInterface {
    * {@inheritdoc}
    */
   public static function trustedCallbacks() {
-    return ['currentTime', 'counter'];
+    return ['currentTime', 'helloOrYarhar', 'exception', 'responseException', 'counter'];
   }
 
 }

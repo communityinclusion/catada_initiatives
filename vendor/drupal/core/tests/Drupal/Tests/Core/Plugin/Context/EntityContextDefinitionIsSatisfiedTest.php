@@ -21,6 +21,7 @@ use Drupal\Core\TypedData\TypedDataManager;
 use Drupal\Core\Validation\ConstraintManager;
 use Drupal\Tests\UnitTestCase;
 use Prophecy\Argument;
+use Prophecy\Prophet;
 
 /**
  * @coversDefaultClass \Drupal\Core\Plugin\Context\EntityContextDefinition
@@ -45,7 +46,7 @@ class EntityContextDefinitionIsSatisfiedTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $namespaces = new \ArrayObject([
@@ -83,14 +84,16 @@ class EntityContextDefinitionIsSatisfiedTest extends UnitTestCase {
    *
    * @param bool $expected
    *   The expected outcome.
-   * @param \Drupal\Core\Plugin\Context\EntityContextDefinition $requirement
+   * @param \Drupal\Core\Plugin\Context\ContextDefinition $requirement
    *   The requirement to check against.
-   * @param \Drupal\Core\Plugin\Context\EntityContextDefinition $definition
+   * @param \Drupal\Core\Plugin\Context\ContextDefinition $definition
    *   The context definition to check.
    * @param mixed $value
    *   (optional) The value to set on the context, defaults to NULL.
+   *
+   * @internal
    */
-  protected function assertRequirementIsSatisfied($expected, ContextDefinition $requirement, ContextDefinition $definition, $value = NULL) {
+  protected function assertRequirementIsSatisfied(bool $expected, ContextDefinition $requirement, ContextDefinition $definition, $value = NULL): void {
     $context = new EntityContext($definition, $value);
     $this->assertSame($expected, $requirement->isSatisfiedBy($context));
   }
@@ -131,7 +134,7 @@ class EntityContextDefinitionIsSatisfiedTest extends UnitTestCase {
   /**
    * Provides test data for ::testIsSatisfiedBy().
    */
-  public function providerTestIsSatisfiedBy() {
+  public static function providerTestIsSatisfiedBy() {
     $data = [];
 
     $content = new EntityType(['id' => 'test_content']);
@@ -143,7 +146,7 @@ class EntityContextDefinitionIsSatisfiedTest extends UnitTestCase {
       EntityContextDefinition::fromEntityType($content),
       EntityContextDefinition::fromEntityType($content),
     ];
-    $entity = $this->prophesize(ContentEntityInterface::class)->willImplement(\IteratorAggregate::class);
+    $entity = (new Prophet())->prophesize(ContentEntityInterface::class)->willImplement(\IteratorAggregate::class);
     $entity->getIterator()->willReturn(new \ArrayIterator([]));
     $entity->getCacheContexts()->willReturn([]);
     $entity->getCacheTags()->willReturn([]);

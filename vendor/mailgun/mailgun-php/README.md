@@ -19,6 +19,9 @@ composer:
 curl -sS https://getcomposer.org/installer | php
 ```
 
+## Required minimum php version
+ - minimum php version 8.1
+
 The Mailgun API Client is not hard coupled to Guzzle, Buzz or any other library that sends
 HTTP messages. Instead, it uses the [PSR-18](https://www.php-fig.org/psr/psr-18/) client abstraction.
 This will give you the flexibility to choose what
@@ -238,4 +241,4 @@ If you find a bug, please submit the issue in Github directly.
 [Mailgun-PHP Issues](https://github.com/mailgun/mailgun-php/issues)
 
 As always, if you need additional assistance, drop us a note through your account at
-[https://app.mailgun.com/app/support/list](https://app.mailgun.com/app/support/list).
+[https://app.mailgun.com/support](https://app.mailgun.com/support).

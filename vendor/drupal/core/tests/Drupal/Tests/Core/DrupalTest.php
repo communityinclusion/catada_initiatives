@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryAggregateInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Tests\UnitTestCase;
-use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -30,10 +29,10 @@ class DrupalTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->container = $this->getMockBuilder('Symfony\Component\DependencyInjection\ContainerBuilder')
-      ->setMethods(['get'])
+      ->onlyMethods(['get'])
       ->getMock();
   }
 
@@ -74,18 +73,6 @@ class DrupalTest extends UnitTestCase {
   public function testCurrentUser() {
     $this->setMockContainerService('current_user');
     $this->assertNotNull(\Drupal::currentUser());
-  }
-
-  /**
-   * Tests the entityManager() method.
-   *
-   * @covers ::entityManager
-   * @group legacy
-   * @expectedDeprecation \Drupal::entityManager() is deprecated in Drupal 8.0.0 and will be removed before Drupal 9.0.0. Use \Drupal::entityTypeManager() instead in most cases. If the needed method is not on \Drupal\Core\Entity\EntityTypeManagerInterface, see the deprecated \Drupal\Core\Entity\EntityManager to find the correct interface or service. See https://www.drupal.org/node/2549139
-   */
-  public function testEntityManager() {
-    $this->setMockContainerService('entity.manager');
-    $this->assertNotNull(\Drupal::entityManager());
   }
 
   /**
@@ -153,7 +140,7 @@ class DrupalTest extends UnitTestCase {
     $keyvalue->expects($this->once())
       ->method('get')
       ->with('test_collection')
-      ->will($this->returnValue(TRUE));
+      ->willReturn(TRUE);
     $this->setMockContainerService('keyvalue.expirable', $keyvalue);
 
     $this->assertNotNull(\Drupal::keyValueExpirable('test_collection'));
@@ -179,7 +166,7 @@ class DrupalTest extends UnitTestCase {
     $config->expects($this->once())
       ->method('get')
       ->with('test_config')
-      ->will($this->returnValue(TRUE));
+      ->willReturn(TRUE);
     $this->setMockContainerService('config.factory', $config);
 
     // Test \Drupal::config(), not $this->config().
@@ -198,7 +185,7 @@ class DrupalTest extends UnitTestCase {
     $queue->expects($this->once())
       ->method('get')
       ->with('test_queue', TRUE)
-      ->will($this->returnValue(TRUE));
+      ->willReturn(TRUE);
     $this->setMockContainerService('queue', $queue);
 
     $this->assertNotNull(\Drupal::queue('test_queue', TRUE));
@@ -228,7 +215,7 @@ class DrupalTest extends UnitTestCase {
     $keyvalue->expects($this->once())
       ->method('get')
       ->with('test_collection')
-      ->will($this->returnValue(TRUE));
+      ->willReturn(TRUE);
     $this->setMockContainerService('keyvalue', $keyvalue);
 
     $this->assertNotNull(\Drupal::keyValue('test_collection'));
@@ -357,28 +344,6 @@ class DrupalTest extends UnitTestCase {
   }
 
   /**
-   * Tests the url() method.
-   *
-   * @covers ::url
-   * @see \Drupal\Core\Routing\UrlGeneratorInterface::generateFromRoute()
-   *
-   * @group legacy
-   * @expectedDeprecation Drupal::url() is deprecated as of Drupal 8.0.x, will be removed before Drupal 9.0.0. Instead create a \Drupal\Core\Url object directly, for example using Url::fromRoute()
-   */
-  public function testUrl() {
-    $route_parameters = ['test_parameter' => 'test'];
-    $options = ['test_option' => 'test'];
-    $generator = $this->createMock('Drupal\Core\Routing\UrlGeneratorInterface');
-    $generator->expects($this->once())
-      ->method('generateFromRoute')
-      ->with('test_route', $route_parameters, $options)
-      ->will($this->returnValue('path_string'));
-    $this->setMockContainerService('url_generator', $generator);
-
-    $this->assertInternalType('string', \Drupal::url('test_route', $route_parameters, $options));
-  }
-
-  /**
    * Tests the linkGenerator() method.
    *
    * @covers ::linkGenerator
@@ -386,31 +351,6 @@ class DrupalTest extends UnitTestCase {
   public function testLinkGenerator() {
     $this->setMockContainerService('link_generator');
     $this->assertNotNull(\Drupal::linkGenerator());
-  }
-
-  /**
-   * Tests the l() method.
-   *
-   * @covers ::l
-   *
-   * @group legacy
-   *
-   * @expectedDeprecation \Drupal::l() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use \Drupal\Core\Link::fromTextAndUrl() instead. See https://www.drupal.org/node/2614344
-   *
-   * @see \Drupal\Core\Utility\LinkGeneratorInterface::generate()
-   */
-  public function testL() {
-    $route_parameters = ['test_parameter' => 'test'];
-    $options = ['test_option' => 'test'];
-    $generator = $this->createMock('Drupal\Core\Utility\LinkGeneratorInterface');
-    $url = new Url('test_route', $route_parameters, $options);
-    $generator->expects($this->once())
-      ->method('generate')
-      ->with('Test title', $url)
-      ->will($this->returnValue('link_html_string'));
-    $this->setMockContainerService('link_generator', $generator);
-
-    $this->assertInternalType('string', \Drupal::l('Test title', $url));
   }
 
   /**
@@ -494,6 +434,29 @@ class DrupalTest extends UnitTestCase {
   }
 
   /**
+   * Tests the PHP constants have consistent values.
+   */
+  public function testPhpConstants() {
+    // RECOMMENDED_PHP can be just MAJOR.MINOR so normalize it to allow using
+    // version_compare().
+    $normalizer = function (string $version): string {
+      // The regex below is from \Composer\Semver\VersionParser::normalize().
+      preg_match('{^(\d{1,5})(\.\d++)?(\.\d++)?$}i', $version, $matches);
+      return $matches[1]
+        . (!empty($matches[2]) ? $matches[2] : '.9999999')
+        . (!empty($matches[3]) ? $matches[3] : '.9999999');
+    };
+
+    $recommended_php = $normalizer(\Drupal::RECOMMENDED_PHP);
+    $this->assertTrue(version_compare($recommended_php, \Drupal::MINIMUM_PHP, '>='), "\Drupal::RECOMMENDED_PHP should be greater or equal to \Drupal::MINIMUM_PHP");
+
+    // As this test depends on the $normalizer function it is tested.
+    $this->assertSame('10.9999999.9999999', $normalizer('10'));
+    $this->assertSame('10.1.9999999', $normalizer('10.1'));
+    $this->assertSame('10.1.2', $normalizer('10.1.2'));
+  }
+
+  /**
    * Sets up a mock expectation for the container get() method.
    *
    * @param string $service_name
@@ -504,14 +467,8 @@ class DrupalTest extends UnitTestCase {
   protected function setMockContainerService($service_name, $return = NULL) {
     $expects = $this->container->expects($this->once())
       ->method('get')
-      ->with($service_name);
-
-    if (isset($return)) {
-      $expects->will($this->returnValue($return));
-    }
-    else {
-      $expects->will($this->returnValue(TRUE));
-    }
+      ->with($service_name)
+      ->willReturn($return ?? new \stdClass());
 
     \Drupal::setContainer($this->container);
   }

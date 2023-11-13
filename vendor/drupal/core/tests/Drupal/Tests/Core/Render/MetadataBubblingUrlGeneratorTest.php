@@ -25,7 +25,7 @@ class MetadataBubblingUrlGeneratorTest extends UrlGeneratorTest {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->renderer = $this->createMock('\Drupal\Core\Render\RendererInterface');
@@ -55,8 +55,8 @@ class MetadataBubblingUrlGeneratorTest extends UrlGeneratorTest {
 
     $this->renderer->expects($this->exactly($invocations))
       ->method('render')
-      ->willReturnCallback(function ($build) use ($self) {
-        $self->assertTrue(!empty($build['#cache']));
+      ->willReturnCallback(function ($build) {
+        $this->assertArrayHasKey('#cache', $build);
       });
 
     $url = new Url('test_1', [], $options);

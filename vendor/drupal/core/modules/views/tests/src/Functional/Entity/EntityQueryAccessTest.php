@@ -20,7 +20,7 @@ class EntityQueryAccessTest extends ViewTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'media_test_source',
     'views_test_query_access',
   ];
@@ -99,11 +99,11 @@ class EntityQueryAccessTest extends ViewTestBase {
     $accessible_block->save();
 
     $account = $this->drupalCreateUser([
-      'administer blocks',
+      'access block library',
     ]);
     $this->drupalLogin($account);
 
-    $this->drupalGet('/admin/structure/block/block-content');
+    $this->drupalGet('/admin/content/block');
     $assert_session = $this->assertSession();
     $assert_session->statusCodeEquals(200);
     $assert_session->pageTextContains($accessible_block->label());

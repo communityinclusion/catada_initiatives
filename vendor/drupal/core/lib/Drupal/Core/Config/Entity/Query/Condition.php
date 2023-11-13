@@ -29,12 +29,15 @@ class Condition extends ConditionBase {
           $condition['operator'] = is_array($condition['value']) ? 'IN' : '=';
         }
 
-        // Lowercase condition value(s) for case-insensitive matches.
-        if (is_array($condition['value'])) {
-          $condition['value'] = array_map('mb_strtolower', $condition['value']);
-        }
-        elseif (!is_bool($condition['value'])) {
-          $condition['value'] = mb_strtolower($condition['value']);
+        // Process the value for operator that use it.
+        if (!in_array($condition['operator'], ['IS NULL', 'IS NOT NULL'], TRUE)) {
+          // Lowercase condition value(s) for case-insensitive matches.
+          if (is_array($condition['value'])) {
+            $condition['value'] = array_map('mb_strtolower', $condition['value']);
+          }
+          elseif (!is_bool($condition['value'])) {
+            $condition['value'] = mb_strtolower($condition['value']);
+          }
         }
 
         $single_conditions[] = $condition;
@@ -200,7 +203,7 @@ class Condition extends ConditionBase {
           return strpos($value, $condition['value']) === 0;
 
         case 'CONTAINS':
-          return strpos($value, $condition['value']) !== FALSE;
+          return str_contains($value, $condition['value']);
 
         case 'ENDS_WITH':
           return substr($value, -strlen($condition['value'])) === (string) $condition['value'];

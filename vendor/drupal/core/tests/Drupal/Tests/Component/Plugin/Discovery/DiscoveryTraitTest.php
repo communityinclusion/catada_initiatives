@@ -35,7 +35,6 @@ class DiscoveryTraitTest extends TestCase {
     $trait = $this->getMockForTrait('Drupal\Component\Plugin\Discovery\DiscoveryTrait');
     // Un-protect the method using reflection.
     $method_ref = new \ReflectionMethod($trait, 'doGetDefinition');
-    $method_ref->setAccessible(TRUE);
     // Call doGetDefinition, with $exception_on_invalid always FALSE.
     $this->assertSame(
       $expected,
@@ -67,7 +66,6 @@ class DiscoveryTraitTest extends TestCase {
     $trait = $this->getMockForTrait('Drupal\Component\Plugin\Discovery\DiscoveryTrait');
     // Un-protect the method using reflection.
     $method_ref = new \ReflectionMethod($trait, 'doGetDefinition');
-    $method_ref->setAccessible(TRUE);
     // Call doGetDefinition, with $exception_on_invalid always TRUE.
     $this->expectException(PluginNotFoundException::class);
     $method_ref->invoke($trait, $definitions, $plugin_id, TRUE);
@@ -130,16 +128,16 @@ class DiscoveryTraitTest extends TestCase {
    */
   public function testHasDefinition($expected, $plugin_id) {
     $trait = $this->getMockBuilder('Drupal\Component\Plugin\Discovery\DiscoveryTrait')
-      ->setMethods(['getDefinition'])
+      ->onlyMethods(['getDefinition'])
       ->getMockForTrait();
     // Set up our mocked getDefinition() to return TRUE for 'valid' and FALSE
     // for 'not_valid'.
     $trait->expects($this->once())
       ->method('getDefinition')
-      ->will($this->returnValueMap([
+      ->willReturnMap([
         ['valid', FALSE, TRUE],
         ['not_valid', FALSE, FALSE],
-      ]));
+      ]);
     // Call hasDefinition().
     $this->assertSame(
       $expected,

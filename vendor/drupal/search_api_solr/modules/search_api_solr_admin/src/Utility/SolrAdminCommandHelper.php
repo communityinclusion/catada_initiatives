@@ -3,9 +3,11 @@
 namespace Drupal\search_api_solr_admin\Utility;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\search_api_solr\Controller\SolrConfigSetController;
 use Drupal\search_api_solr\SearchApiSolrException;
 use Drupal\search_api_solr\Utility\SolrCommandHelper;
 use Drupal\search_api_solr\Utility\Utility;
@@ -17,11 +19,15 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class SolrAdminCommandHelper extends SolrCommandHelper {
 
   /**
+   * The file system.
+   *
    * @var \Drupal\Core\File\FileSystemInterface
    */
   protected $fileSystem;
 
   /**
+   * The messenger.
+   *
    * @var \Drupal\Core\Messenger\MessengerInterface
    */
   protected $messenger;
@@ -35,9 +41,12 @@ class SolrAdminCommandHelper extends SolrCommandHelper {
    *   The module handler.
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher.
-   * @param string|callable $translation_function
-   *   (optional) A callable for translating strings.
    * @param \Drupal\Core\File\FileSystemInterface $fileSystem
+   *   The file system.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger.
+   * @param \Drupal\search_api_solr\Controller\SolrConfigSetController $configset_controller
+   *   The configset controller.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    *   Thrown if the "search_api_index" or "search_api_server" entity types'
@@ -46,8 +55,8 @@ class SolrAdminCommandHelper extends SolrCommandHelper {
    *   Thrown if the "search_api_index" or "search_api_server" entity types are
    *   unknown.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, EventDispatcherInterface $event_dispatcher, FileSystemInterface $fileSystem, MessengerInterface $messenger) {
-    parent::__construct($entity_type_manager, $module_handler, $event_dispatcher);
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, EventDispatcherInterface $event_dispatcher, SolrConfigSetController $configset_controller, FileSystemInterface $fileSystem, MessengerInterface $messenger) {
+    parent::__construct($entity_type_manager, $module_handler, $event_dispatcher, $configset_controller);
     $this->fileSystem = $fileSystem;
     $this->messenger = $messenger;
   }
@@ -95,8 +104,9 @@ class SolrAdminCommandHelper extends SolrCommandHelper {
    *
    * @param string $server_id
    *   The ID of the server.
-   * @param int $num_shards
+   * @param array $collection_params
    * @param bool $messages
+   *   Indicate if messages should be displayed, default is FALSE.
    *
    * @throws \Drupal\search_api\SearchApiException
    * @throws \Drupal\search_api_solr\SearchApiSolrException
@@ -104,7 +114,7 @@ class SolrAdminCommandHelper extends SolrCommandHelper {
    * @throws \ZipStream\Exception\FileNotReadableException
    * @throws \ZipStream\Exception\OverflowException
    */
-  public function uploadConfigset(string $server_id, int $num_shards = 3, bool $messages = FALSE): void {
+  public function uploadConfigset(string $server_id, array $collection_params = [], bool $messages = FALSE): void {
     $server = $this->getServer($server_id);
     $connector = Utility::getSolrCloudConnector($server);
 
@@ -134,10 +144,49 @@ class SolrAdminCommandHelper extends SolrCommandHelper {
       }
     }
     else {
-      $connector->createCollection([
-        'collection.configName' => $configset,
-        'numShards' => $num_shards
-      ]);
+      $options = [];
+      $allowed_options = [
+        'numShards' => 'int',
+        'maxShardsPerNode' => 'int',
+        'replicationFactor' => 'int',
+        'nrtReplicas' => 'int',
+        'tlogReplicas' => 'int',
+        'pullReplicas' => 'int',
+        'autoAddReplicas' => 'bool',
+        'alias' => 'string',
+        'waitForFinalState' => 'bool',
+        'createNodeSet' => 'string',
+      ];
+
+      foreach ($allowed_options as $option => $type) {
+        if (isset($collection_params[$option]) && $collection_params[$option]) {
+          switch ($type) {
+            case 'int':
+              $options[$option] = (int) $collection_params[$option];
+              break;
+
+            case'bool':
+              $options[$option] = (bool) $collection_params[$option];
+              break;
+
+            case'string':
+            default:
+              $options[$option] = $collection_params[$option];
+              break;
+          }
+        }
+      }
+
+      // Merge the param options.
+      $collection = array_merge(
+        [
+          'collection.configName' => $configset,
+        ],
+        $options
+      );
+
+      $connector->createCollection($collection);
+
       if ($messages) {
         $this->messenger->addStatus($this->t('Successfully created collection %collection.', ['%collection' => $connector->getCollectionName()]));
       }

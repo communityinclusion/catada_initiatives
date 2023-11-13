@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api\Plugin\views\filter;
 
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\search_api\Entity\Index;
 use Drupal\search_api\ParseMode\ParseModePluginManager;
@@ -314,11 +315,14 @@ class SearchApiFulltext extends FilterPluginBase {
     }
 
     // Store searched fields.
-    $searched_fields_identifier = $this->options['id'] . '_searched_fields';
-    if (!empty($this->options['expose']['searched_fields_id'])) {
-      $searched_fields_identifier = $this->options['expose']['searched_fields_id'];
+    $this->searchedFields = [];
+    if ($this->options['expose']['expose_fields']) {
+      $searched_fields_identifier = $this->options['id'] . '_searched_fields';
+      if (!empty($this->options['expose']['searched_fields_id'])) {
+        $searched_fields_identifier = $this->options['expose']['searched_fields_id'];
+      }
+      $this->searchedFields = $form_state->getValue($searched_fields_identifier, []);
     }
-    $this->searchedFields = $form_state->getValue($searched_fields_identifier, []);
 
     $identifier = $this->options['expose']['identifier'];
     $input = &$form_state->getValue($identifier, '');
@@ -344,20 +348,24 @@ class SearchApiFulltext extends FilterPluginBase {
       return;
     }
 
+    if (!Unicode::validateUtf8($input)) {
+      $msg = $this->t('Invalid input.');
+      $form_state->setErrorByName($identifier, $msg);
+    }
+
     // Only continue if there is a minimum word length set.
     if ($this->options['min_length'] < 2) {
       return;
     }
 
-    $words = preg_split('/\s+/', $input);
+    $words = preg_split('/\s+/', $input) ?: [];
     foreach ($words as $i => $word) {
       if (mb_strlen($word) < $this->options['min_length']) {
         unset($words[$i]);
       }
     }
     if (!$words) {
-      $vars['@count'] = $this->options['min_length'];
-      $msg = $this->t('You must include at least one positive keyword with @count characters or more.', $vars);
+      $msg = $this->formatPlural($this->options['min_length'], 'You must include at least one keyword to match in the content, and punctuation is ignored.', 'You must include at least one keyword to match in the content. Keywords must be at least @count characters, and punctuation is ignored.');
       $form_state->setErrorByName($identifier, $msg);
     }
     $input = implode(' ', $words);
@@ -400,12 +408,11 @@ class SearchApiFulltext extends FilterPluginBase {
       && (array_diff($old_fields, $fields) || array_diff($fields, $old_fields));
 
     if ($use_conditions) {
-      $conditions = $query->createConditionGroup('OR');
+      $conditions = $query->createAndAddConditionGroup('OR');
       $op = $this->operator === 'not' ? '<>' : '=';
       foreach ($fields as $field) {
         $conditions->addCondition($field, $this->value, $op);
       }
-      $query->addConditionGroup($conditions);
       return;
     }
 

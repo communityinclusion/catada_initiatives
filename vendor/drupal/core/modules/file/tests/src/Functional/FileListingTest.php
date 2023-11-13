@@ -5,6 +5,7 @@ namespace Drupal\Tests\file\Functional;
 use Drupal\node\Entity\Node;
 use Drupal\file\Entity\File;
 use Drupal\entity_test\Entity\EntityTestConstraints;
+use Drupal\user\Entity\Role;
 
 /**
  * Tests file listing page functionality.
@@ -18,12 +19,12 @@ class FileListingTest extends FileFieldTestBase {
    *
    * @var array
    */
-  public static $modules = ['views', 'file', 'image', 'entity_test'];
+  protected static $modules = ['views', 'file', 'image', 'entity_test'];
 
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'stark';
 
   /**
    * An authenticated user.
@@ -32,7 +33,10 @@ class FileListingTest extends FileFieldTestBase {
    */
   protected $baseUser;
 
-  protected function setUp() {
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
 
     // This test expects unused managed files to be marked as a temporary file.
@@ -43,6 +47,7 @@ class FileListingTest extends FileFieldTestBase {
     $this->adminUser = $this->drupalCreateUser([
       'access files overview',
       'bypass node access',
+      'delete any file',
     ]);
     $this->baseUser = $this->drupalCreateUser();
     $this->createFileField('file', 'node', 'article', [], ['file_extensions' => 'txt png']);
@@ -51,7 +56,7 @@ class FileListingTest extends FileFieldTestBase {
   /**
    * Calculates total count of usages for a file.
    *
-   * @param $usage array
+   * @param array $usage
    *   Array of file usage information as returned from file_usage subsystem.
    *
    * @return int
@@ -89,7 +94,7 @@ class FileListingTest extends FileFieldTestBase {
 
     $this->drupalGet('admin/content/files');
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertText('No files available.');
+    $this->assertSession()->pageTextContains('No files available.');
     $this->drupalGet('admin/content/files');
     $this->assertSession()->statusCodeEquals(200);
 
@@ -98,7 +103,7 @@ class FileListingTest extends FileFieldTestBase {
 
     $this->drupalGet('admin/content/files/usage/' . $file->id());
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertTitle('File usage information for ' . $file->getFilename() . ' | Drupal');
+    $this->assertSession()->titleEquals('File usage information for ' . $file->getFilename() . ' | Drupal');
 
     foreach ($nodes as &$node) {
       $this->drupalGet('node/' . $node->id() . '/edit');
@@ -107,7 +112,7 @@ class FileListingTest extends FileFieldTestBase {
       $edit = [
         'files[file_0]' => \Drupal::service('file_system')->realpath($file->getFileUri()),
       ];
-      $this->drupalPostForm(NULL, $edit, t('Save'));
+      $this->submitForm($edit, 'Save');
       $node = Node::load($node->id());
     }
 
@@ -115,12 +120,13 @@ class FileListingTest extends FileFieldTestBase {
 
     foreach ($nodes as $node) {
       $file = File::load($node->file->target_id);
-      $this->assertText($file->getFilename());
-      $this->assertLinkByHref(file_create_url($file->getFileUri()));
-      $this->assertLinkByHref('admin/content/files/usage/' . $file->id());
+      $this->assertSession()->pageTextContains($file->getFilename());
+      $this->assertSession()->linkByHrefExists($file->createFileUrl());
+      $this->assertSession()->linkByHrefExists('admin/content/files/usage/' . $file->id());
+      $this->assertSession()->linkByHrefExists($file->toUrl('delete-form')->toString());
     }
-    $this->assertSession()->elementTextNotContains('css', 'table.views-table', 'Temporary');
-    $this->assertSession()->elementTextContains('css', 'table.views-table', 'Permanent');
+    $this->assertSession()->elementTextNotContains('css', '.views-element-container table', 'Temporary');
+    $this->assertSession()->elementTextContains('css', '.views-element-container table', 'Permanent');
 
     // Use one file two times and check usage information.
     $orphaned_file = $nodes[1]->file->target_id;
@@ -131,14 +137,13 @@ class FileListingTest extends FileFieldTestBase {
     $this->drupalGet('admin/content/files');
     $file = File::load($orphaned_file);
     $usage = $this->sumUsages($file_usage->listUsage($file));
-    $this->assertRaw('admin/content/files/usage/' . $file->id() . '">' . $usage);
+    $this->assertSession()->responseContains('admin/content/files/usage/' . $file->id() . '">' . $usage);
 
     $file = File::load($used_file);
     $usage = $this->sumUsages($file_usage->listUsage($file));
-    $this->assertRaw('admin/content/files/usage/' . $file->id() . '">' . $usage);
+    $this->assertSession()->responseContains('admin/content/files/usage/' . $file->id() . '">' . $usage);
 
-    $result = $this->xpath("//td[contains(@class, 'views-field-status') and contains(text(), :value)]", [':value' => 'Temporary']);
-    $this->assertCount(1, $result, 'Unused file marked as temporary.');
+    $this->assertSession()->elementsCount('xpath', "//td[contains(@class, 'views-field-status') and contains(text(), 'Temporary')]", 1);
 
     // Test file usage page.
     foreach ($nodes as $node) {
@@ -146,18 +151,58 @@ class FileListingTest extends FileFieldTestBase {
       $usage = $file_usage->listUsage($file);
       $this->drupalGet('admin/content/files/usage/' . $file->id());
       $this->assertSession()->statusCodeEquals(200);
-      $this->assertText($node->getTitle(), 'Node title found on usage page.');
-      $this->assertText('node', 'Registering entity type found on usage page.');
-      $this->assertText('file', 'Registering module found on usage page.');
+      $this->assertSession()->pageTextContains($node->getTitle());
+      // Verify that registering entity type is found on usage page.
+      $this->assertSession()->pageTextContains('node');
+      // Verify that registering module is found on usage page.
+      $this->assertSession()->pageTextContains('file');
       foreach ($usage as $module) {
         foreach ($module as $entity_type) {
           foreach ($entity_type as $entity) {
-            $this->assertText($entity, 'Usage count found on usage page.');
+            // Verify that usage count is found on usage page.
+            $this->assertSession()->pageTextContains($entity);
           }
         }
       }
-      $this->assertLinkByHref('node/' . $node->id(), 0, 'Link to registering entity found on usage page.');
+      $this->assertSession()->linkByHrefExists('node/' . $node->id(), 0, 'Link to registering entity found on usage page.');
     }
+
+    // Log in as another user that has access to the file list but cannot delete
+    // files.
+    $role_id = $this->drupalCreateRole([
+      'access files overview',
+      'bypass node access',
+    ]);
+    $this->drupalLogin($this->drupalCreateUser(values: ['roles' => [$role_id]]));
+
+    $this->drupalGet('admin/content/files');
+    foreach ($nodes as $node) {
+      $file = File::load($node->file->target_id);
+      $this->assertSession()->pageTextContains($file->getFilename());
+      $this->assertSession()->linkByHrefExists($file->createFileUrl());
+      $this->assertSession()->linkByHrefExists('admin/content/files/usage/' . $file->id());
+      $this->assertSession()->linkByHrefNotExists($file->toUrl('delete-form')->toString());
+    }
+    // Give the user's role permission to delete files.
+    Role::load($role_id)->grantPermission('delete any file')->save();
+    $this->drupalGet('admin/content/files');
+    foreach ($nodes as $node) {
+      $file = File::load($node->file->target_id);
+      $this->assertSession()->pageTextContains($file->getFilename());
+      $this->assertSession()->linkByHrefExists($file->createFileUrl());
+      $this->assertSession()->linkByHrefExists('admin/content/files/usage/' . $file->id());
+      $this->assertSession()->linkByHrefExists($file->toUrl('delete-form')->toString());
+    }
+    // Load the page in a definite order.
+    $this->drupalGet('admin/content/files', ['query' => ['order' => 'filename', 'sort' => 'asc']]);
+    $this->clickLink('Delete');
+    $file_uri = File::load(1)->getFileUri();
+    $this->assertSession()->addressMatches('#file/1/delete$#');
+    $this->assertSession()->pageTextContains('Are you sure you want to delete the file druplicon.txt?');
+    $this->assertFileExists($file_uri);
+    $this->assertSession()->buttonExists('Delete')->press();
+    $this->assertSession()->pageTextContains('The file druplicon.txt has been deleted.');
+    $this->assertFileDoesNotExist($file_uri);
   }
 
   /**
@@ -204,7 +249,7 @@ class FileListingTest extends FileFieldTestBase {
     $this->assertSession()->statusCodeEquals(200);
     // Entity name should be displayed, but not linked if Entity::toUrl
     // throws an exception
-    $this->assertText($entity_name, 'Entity name is added to file usage listing.');
+    $this->assertSession()->pageTextContains($entity_name);
     $this->assertSession()->linkNotExists($entity_name, 'Linked entity name not added to file usage listing.');
     $this->assertSession()->linkExists($node->getTitle());
   }
@@ -224,8 +269,8 @@ class FileListingTest extends FileFieldTestBase {
       'filemime' => 'text/plain',
       'created' => 1,
       'changed' => 1,
-      'status' => FILE_STATUS_PERMANENT,
     ]);
+    $file->setPermanent();
     file_put_contents($file->getFileUri(), 'hello world');
 
     // Save it, inserting a new record.

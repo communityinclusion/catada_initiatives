@@ -132,7 +132,7 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
    *
    * This property is overlooked if the $default_value_callback is non-empty.
    *
-   * Example for a integer field:
+   * Example for an integer field:
    * @code
    * array(
    *   array('value' => 1),
@@ -184,8 +184,10 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
   protected $constraints = [];
 
   /**
-   * Array of property constraint options keyed by property ID. The values are
-   * associative array of constraint options keyed by constraint plugin ID.
+   * Array of property constraint options keyed by property ID.
+   *
+   * The values are associative array of constraint options keyed by constraint
+   * plugin ID.
    *
    * @var array[]
    */
@@ -234,7 +236,7 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
     // Add dependencies from the field type plugin. We can not use
     // self::calculatePluginDependencies() because instantiation of a field item
     // plugin requires a parent entity.
-    /** @var $field_type_manager \Drupal\Core\Field\FieldTypePluginManagerInterface */
+    /** @var \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_manager */
     $field_type_manager = \Drupal::service('plugin.manager.field.field_type');
     $definition = $field_type_manager->getDefinition($this->getType());
     $this->addDependency('module', $definition['provider']);
@@ -276,6 +278,21 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
     // from the field storage, so that it gets saved in the config record.
     if (empty($this->field_type)) {
       $this->field_type = $this->getFieldStorageDefinition()->getType();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function postDelete(EntityStorageInterface $storage, array $fields) {
+    // Clear the cache upfront, to refresh the results of getBundles().
+    \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+
+    // Notify the entity storage.
+    foreach ($fields as $field) {
+      if (!$field->deleted) {
+        \Drupal::service('field_definition.listener')->onFieldDefinitionDelete($field);
+      }
     }
   }
 
@@ -473,6 +490,12 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
    * {@inheritdoc}
    */
   public function getDataType() {
+    // This object serves as data definition for field item lists, thus
+    // the correct data type is 'list'. This is not to be confused with
+    // the config schema type, 'field_config_base', which is used to
+    // describe the schema of the configuration backing this objects.
+    // @see \Drupal\Core\Field\FieldItemList
+    // @see \Drupal\Core\TypedData\DataDefinitionInterface
     return 'list';
   }
 
@@ -505,7 +528,7 @@ abstract class FieldConfigBase extends ConfigEntityBase implements FieldConfigIn
    */
   public function getConstraint($constraint_name) {
     $constraints = $this->getConstraints();
-    return isset($constraints[$constraint_name]) ? $constraints[$constraint_name] : NULL;
+    return $constraints[$constraint_name] ?? NULL;
   }
 
   /**

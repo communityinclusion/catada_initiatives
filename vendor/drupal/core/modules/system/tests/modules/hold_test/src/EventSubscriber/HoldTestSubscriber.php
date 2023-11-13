@@ -14,6 +14,13 @@ class HoldTestSubscriber implements EventSubscriberInterface {
   const HOLD_RESPONSE = 'response';
 
   /**
+   * Time in microseconds to wait for before checking if the file is updated.
+   *
+   * @var int
+   */
+  const WAIT = 100000;
+
+  /**
    * The site path.
    *
    * @var string
@@ -52,15 +59,15 @@ class HoldTestSubscriber implements EventSubscriberInterface {
    */
   protected function hold($type) {
     $path = "{$this->sitePath}/hold_test_$type.txt";
-    do {
-      $status = (bool) file_get_contents($path);
-    } while ($status && (NULL === usleep(100000)));
+    while ((bool) file_get_contents($path)) {
+      usleep(static::WAIT);
+    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function getSubscribedEvents() {
+  public static function getSubscribedEvents(): array {
     $events[KernelEvents::REQUEST][] = ['onRequest'];
     $events[KernelEvents::RESPONSE][] = ['onRespond'];
     return $events;

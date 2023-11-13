@@ -6,6 +6,8 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Datetime\FormattedDateDiff;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\Language\Language;
+use Drupal\Core\Language\LanguageManager;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -17,7 +19,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 class DateTest extends UnitTestCase {
 
   /**
-   * The mocked entity manager.
+   * The mocked entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
@@ -58,7 +60,10 @@ class DateTest extends UnitTestCase {
    */
   protected $dateFormatterStub;
 
-  protected function setUp() {
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
 
     $entity_storage = $this->createMock('Drupal\Core\Entity\EntityStorageInterface');
@@ -67,6 +72,9 @@ class DateTest extends UnitTestCase {
     $this->entityTypeManager->expects($this->any())->method('getStorage')->with('date_format')->willReturn($entity_storage);
 
     $this->languageManager = $this->createMock('Drupal\Core\Language\LanguageManagerInterface');
+    $this->languageManager->expects($this->any())
+      ->method('getCurrentLanguage')
+      ->willReturn(new Language(['id' => $this->randomMachineName(2)]));
     $this->stringTranslation = $this->createMock('Drupal\Core\StringTranslation\TranslationInterface');
     $this->requestStack = $this->createMock('Symfony\Component\HttpFoundation\RequestStack');
 
@@ -74,13 +82,14 @@ class DateTest extends UnitTestCase {
     $container = new ContainerBuilder();
     $container->set('config.factory', $config_factory);
     $container->set('string_translation', $this->getStringTranslationStub());
+    $container->set('language_manager', $this->languageManager);
     \Drupal::setContainer($container);
 
     $this->dateFormatter = new DateFormatter($this->entityTypeManager, $this->languageManager, $this->stringTranslation, $this->getConfigFactoryStub(), $this->requestStack);
 
     $this->dateFormatterStub = $this->getMockBuilder('\Drupal\Core\Datetime\DateFormatter')
       ->setConstructorArgs([$this->entityTypeManager, $this->languageManager, $this->stringTranslation, $this->getConfigFactoryStub(), $this->requestStack])
-      ->setMethods(['formatDiff'])
+      ->onlyMethods(['formatDiff'])
       ->getMock();
   }
 
@@ -185,16 +194,12 @@ class DateTest extends UnitTestCase {
 
     // Mocks the formatDiff function of the dateformatter object.
     $this->dateFormatterStub
-      ->expects($this->at(0))
+      ->expects($this->exactly(2))
       ->method('formatDiff')
-      ->with($timestamp, $request_time, $options)
-      ->will($this->returnValue($expected));
-
-    $this->dateFormatterStub
-      ->expects($this->at(1))
-      ->method('formatDiff')
-      ->with($timestamp, $request_time, $options + ['return_as_object' => TRUE])
-      ->will($this->returnValue(new FormattedDateDiff('1 second', 1)));
+      ->willReturnMap([
+        [$timestamp, $request_time, $options, $expected],
+        [$timestamp, $request_time, $options + ['return_as_object' => TRUE], new FormattedDateDiff('1 second', 1)],
+      ]);
 
     $request = Request::createFromGlobals();
     $request->server->set('REQUEST_TIME', $request_time);
@@ -222,16 +227,12 @@ class DateTest extends UnitTestCase {
 
     // Mocks the formatDiff function of the dateformatter object.
     $this->dateFormatterStub
-      ->expects($this->at(0))
+      ->expects($this->exactly(2))
       ->method('formatDiff')
-      ->with($request_time, $timestamp, $options)
-      ->will($this->returnValue($expected));
-
-    $this->dateFormatterStub
-      ->expects($this->at(1))
-      ->method('formatDiff')
-      ->with($request_time, $timestamp, $options + ['return_as_object' => TRUE])
-      ->will($this->returnValue(new FormattedDateDiff('1 second', 1)));
+      ->willReturnMap([
+        [$request_time, $timestamp, $options, $expected],
+        [$request_time, $timestamp, $options + ['return_as_object' => TRUE], new FormattedDateDiff('1 second', 1)],
+      ]);
 
     $request = Request::createFromGlobals();
     $request->server->set('REQUEST_TIME', $request_time);
@@ -253,7 +254,7 @@ class DateTest extends UnitTestCase {
    *
    * @covers ::formatDiff
    */
-  public function testformatDiff($expected, $max_age, $timestamp1, $timestamp2, $options = []) {
+  public function testFormatDiff($expected, $max_age, $timestamp1, $timestamp2, $options = []) {
     // Mocks a simple translateString implementation.
     $this->stringTranslation->expects($this->any())
       ->method('translateString')
@@ -275,7 +276,7 @@ class DateTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testformatDiff().
+   * Data provider for testFormatDiff().
    */
   public function providerTestFormatDiff() {
     // This is the fixed request time in the test.
@@ -412,7 +413,7 @@ class DateTest extends UnitTestCase {
         'max-age' => $max_age,
       ],
     ];
-    $this->assertArrayEquals($expected, $object->toRenderable());
+    $this->assertEquals($expected, $object->toRenderable());
 
     // Test retrieving the formatted time difference string.
     $this->assertEquals($string, $object->getString());
@@ -424,25 +425,29 @@ class DateTest extends UnitTestCase {
   }
 
   /**
-   * Tests FormattedDateDiff.
+   * Tests that an RFC2822 formatted date always returns an English string.
    *
-   * @covers \Drupal\Core\Datetime\FormattedDateDiff::getMaxAge
-   * @group legacy
-   * @expectedDeprecation Drupal\Core\Datetime\FormattedDateDiff::getMaxAge() is deprecated in drupal:8.1.9 and is removed from drupal:9.0.0. Use \Drupal\Core\Datetime\FormattedDateDiff::getCacheMaxAge() instead. See https://www.drupal.org/node/2783545
+   * @see http://www.faqs.org/rfcs/rfc2822.html
+   *
+   * @covers ::format
    */
-  public function testLegacyMaxAgeFormattedDateDiff() {
-    $string = '10 minutes';
-    $max_age = 60;
-    $object = new FormattedDateDiff($string, $max_age);
-    $this->assertSame($object->getCacheMaxAge(), $object->getMaxAge());
+  public function testRfc2822DateFormat(): void {
+    $timestamp = 1549110600;
+    $langcodes = array_keys(LanguageManager::getStandardLanguageList());
+    $langcodes[] = NULL;
+    foreach ($langcodes as $langcode) {
+      $formatted_date = $this->dateFormatter->format($timestamp, 'custom', 'r', 'Europe/Berlin', $langcode);
+      // Check that RFC2822 format date is returned regardless of langcode.
+      $this->assertSame('Sat, 02 Feb 2019 13:30:00 +0100', $formatted_date);
+    }
   }
 
   /**
-   * Creates a UNIX timestamp given a date and time string in the format
-   * year-month-day hour:minute:seconds (e.g. 2013-12-11 10:09:08).
+   * Creates a UNIX timestamp given a date and time string.
    *
    * @param string $dateTimeString
-   *   The formatted date and time string.
+   *   The formatted date and time string. The format is year-month-day
+   *   hour:minute:seconds (e.g. 2013-12-11 10:09:08).
    *
    * @return int
    *   The UNIX timestamp.

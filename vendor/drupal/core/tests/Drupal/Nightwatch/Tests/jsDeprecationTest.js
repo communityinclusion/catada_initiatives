@@ -16,11 +16,11 @@ module.exports = {
   after(browser) {
     browser.drupalUninstall();
   },
-  'Test JavaScript deprecations': browser => {
+  'Test JavaScript deprecations': (browser) => {
     browser
       .drupalRelativeURL('/js_deprecation_test')
       .waitForElementVisible('body', 1000)
-      .assert.containsText('h1', 'JsDeprecationTest')
+      .assert.textContains('h1', 'JsDeprecationTest')
       .assert.deprecationErrorExists(
         'This function is deprecated for testing purposes.',
       )

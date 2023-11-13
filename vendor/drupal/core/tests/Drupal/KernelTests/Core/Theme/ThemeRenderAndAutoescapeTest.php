@@ -19,21 +19,21 @@ use Drupal\KernelTests\KernelTestBase;
  * Tests the theme_render_and_autoescape() function.
  *
  * @group Theme
+ * @group legacy
  */
 class ThemeRenderAndAutoescapeTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['system'];
+  protected static $modules = ['system'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-
-    \Drupal::service('router.builder')->rebuild();
+    $this->expectDeprecation('theme_render_and_autoescape() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. There is no replacement. Theme engines must handle escaping by themselves. See https://www.drupal.org/node/3336253');
   }
 
   /**
