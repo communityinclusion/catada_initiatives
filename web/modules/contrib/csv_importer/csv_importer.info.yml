@@ -1,6 +1,0 @@
-name: CSV Importer
-type: module
-description: 'Import content from CSV.'
-package: CSV
-core_version_requirement: ^8.8 || ^9 || ^10
-configure: csv_importer.settings

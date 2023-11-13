@@ -5,6 +5,8 @@ namespace Drupal\KernelTests;
 use Drupal\Component\FileCache\FileCacheFactory;
 use Drupal\Core\Database\Database;
 use GuzzleHttp\Exception\GuzzleException;
+use Drupal\Tests\StreamCapturer;
+use Drupal\user\Entity\Role;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\visitor\vfsStreamStructureVisitor;
 use PHPUnit\Framework\SkippedTestError;
@@ -30,7 +32,7 @@ class KernelTestBaseTest extends KernelTestBase {
    * @covers ::bootEnvironment
    */
   public function testBootEnvironment() {
-    $this->assertRegExp('/^test\d{8}$/', $this->databasePrefix);
+    $this->assertMatchesRegularExpression('/^test\d{8}$/', $this->databasePrefix);
     $this->assertStringStartsWith('vfs://root/sites/simpletest/', $this->siteDirectory);
     $this->assertEquals([
       'root' => [
@@ -54,7 +56,7 @@ class KernelTestBaseTest extends KernelTestBase {
    */
   public function testGetDatabaseConnectionInfoWithOutManualSetDbUrl() {
     $options = $this->container->get('database')->getConnectionOptions();
-    $this->assertSame($this->databasePrefix, $options['prefix']['default']);
+    $this->assertSame($this->databasePrefix, $options['prefix']);
   }
 
   /**
@@ -85,13 +87,6 @@ class KernelTestBaseTest extends KernelTestBase {
       ],
     ]);
     $this->assertTrue($database->schema()->tableExists('foo'));
-
-    // Ensure that the database tasks have been run during set up. Neither MySQL
-    // nor SQLite make changes that are testable.
-    if ($database->driver() == 'pgsql') {
-      $this->assertEquals('on', $database->query("SHOW standard_conforming_strings")->fetchField());
-      $this->assertEquals('escape', $database->query("SHOW bytea_output")->fetchField());
-    }
 
     $this->assertNotNull(FileCacheFactory::getPrefix());
   }
@@ -173,10 +168,13 @@ class KernelTestBaseTest extends KernelTestBase {
     // which checks the DRUPAL_TEST_IN_CHILD_SITE constant, that is not defined
     // in Kernel tests.
     try {
-      $this->container->get('http_client')->get('http://example.com');
+      /** @var \GuzzleHttp\Psr7\Response $response */
+      $response = $this->container->get('http_client')->head('http://example.com');
+      self::assertEquals(200, $response->getStatusCode());
     }
-    catch (GuzzleException $e) {
-      // Ignore any HTTP errors.
+    catch (\Throwable $e) {
+      // Ignore any HTTP errors, any other exception is considered an error.
+      self::assertInstanceOf(GuzzleException::class, $e, sprintf('Asserting that a possible exception is thrown. Got "%s" with message: "%s".', get_class($e), $e->getMessage()));
     }
   }
 
@@ -204,8 +202,8 @@ class KernelTestBaseTest extends KernelTestBase {
     $output = \Drupal::service('renderer')->renderRoot($build);
     $this->assertEquals('core', \Drupal::theme()->getActiveTheme()->getName());
 
-    $this->assertEquals($expected, $build['#markup']);
-    $this->assertEquals($expected, $output);
+    $this->assertSame($expected, (string) $build['#markup']);
+    $this->assertSame($expected, (string) $output);
   }
 
   /**
@@ -224,8 +222,8 @@ class KernelTestBaseTest extends KernelTestBase {
     $output = \Drupal::service('renderer')->renderRoot($build);
     $this->assertEquals('core', \Drupal::theme()->getActiveTheme()->getName());
 
-    $this->assertRegExp($expected, (string) $build['#children']);
-    $this->assertRegExp($expected, (string) $output);
+    $this->assertMatchesRegularExpression($expected, (string) $build['#children']);
+    $this->assertMatchesRegularExpression($expected, (string) $output);
   }
 
   /**
@@ -256,6 +254,7 @@ class KernelTestBaseTest extends KernelTestBase {
   public function testMethodRequiresModule() {
     require __DIR__ . '/../../fixtures/KernelMissingDependentModuleMethodTest.php';
 
+    // @phpstan-ignore-next-line
     $stub_test = new KernelMissingDependentModuleMethodTest();
     // We have to setName() to the method name we're concerned with.
     $stub_test->setName('testRequiresModule');
@@ -267,7 +266,7 @@ class KernelTestBaseTest extends KernelTestBase {
       $this->fail('Missing required module throws skipped test exception.');
     }
     catch (SkippedTestError $e) {
-      $this->assertEqual('Required modules: module_does_not_exist', $e->getMessage());
+      $this->assertEquals('Required modules: module_does_not_exist', $e->getMessage());
     }
   }
 
@@ -283,6 +282,7 @@ class KernelTestBaseTest extends KernelTestBase {
   public function testRequiresModule() {
     require __DIR__ . '/../../fixtures/KernelMissingDependentModuleTest.php';
 
+    // @phpstan-ignore-next-line
     $stub_test = new KernelMissingDependentModuleTest();
     // We have to setName() to the method name we're concerned with.
     $stub_test->setName('testRequiresModule');
@@ -294,32 +294,33 @@ class KernelTestBaseTest extends KernelTestBase {
       $this->fail('Missing required module throws skipped test exception.');
     }
     catch (SkippedTestError $e) {
-      $this->assertEqual('Required modules: module_does_not_exist', $e->getMessage());
+      $this->assertEquals('Required modules: module_does_not_exist', $e->getMessage());
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function tearDown() {
+  protected function tearDown(): void {
     parent::tearDown();
 
     // Check that all tables of the test instance have been deleted. At this
     // point the original database connection is restored so we need to prefix
     // the tables.
     $connection = Database::getConnection();
-    if ($connection->databaseType() != 'sqlite') {
-      $tables = $connection->schema()->findTables($this->databasePrefix . '%');
-      $this->assertTrue(empty($tables), 'All test tables have been removed.');
+    if ($connection->databaseType() === 'sqlite') {
+      $result = $connection->query("SELECT name FROM " . $this->databasePrefix .
+        ".sqlite_master WHERE type = :type AND name LIKE :table_name AND name NOT LIKE :pattern", [
+          ':type' => 'table',
+          ':table_name' => '%',
+          ':pattern' => 'sqlite_%',
+        ]
+      )->fetchAllKeyed(0, 0);
+      $this->assertEmpty($result, 'All test tables have been removed.');
     }
     else {
-      $result = $connection->query("SELECT name FROM " . $this->databasePrefix . ".sqlite_master WHERE type = :type AND name LIKE :table_name AND name NOT LIKE :pattern", [
-        ':type' => 'table',
-        ':table_name' => '%',
-        ':pattern' => 'sqlite_%',
-      ])->fetchAllKeyed(0, 0);
-
-      $this->assertTrue(empty($result), 'All test tables have been removed.');
+      $tables = $connection->schema()->findTables($this->databasePrefix . '%');
+      $this->assertEmpty($tables, 'All test tables have been removed.');
     }
   }
 
@@ -332,6 +333,36 @@ class KernelTestBaseTest extends KernelTestBase {
       'core/profiles/demo_umami/modules/demo_umami_content/demo_umami_content.info.yml',
       \Drupal::service('extension.list.module')->getPathname('demo_umami_content')
     );
+  }
+
+  /**
+   * Tests the dump() function provided by the var-dumper Symfony component.
+   */
+  public function testVarDump() {
+    // Append the stream capturer to the STDOUT stream, so that we can test the
+    // dump() output and also prevent it from actually outputting in this
+    // particular test.
+    stream_filter_register("capture", StreamCapturer::class);
+    stream_filter_append(STDOUT, "capture");
+
+    // Dump some variables.
+    $this->enableModules(['system', 'user']);
+    $role = Role::create(['id' => 'test_role', 'label' => 'Test role']);
+    dump($role);
+    dump($role->id());
+
+    $this->assertStringContainsString('Drupal\user\Entity\Role', StreamCapturer::$cache);
+    $this->assertStringContainsString('test_role', StreamCapturer::$cache);
+  }
+
+  /**
+   * @covers ::bootEnvironment
+   */
+  public function testDatabaseDriverModuleEnabled() {
+    $module = Database::getConnection()->getProvider();
+
+    // Test that the module that is providing the database driver is enabled.
+    $this->assertSame(1, \Drupal::service('extension.list.module')->get($module)->status);
   }
 
 }

@@ -17,7 +17,7 @@ class TwigDebugMarkupTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['theme_test', 'node'];
+  protected static $modules = ['theme_test', 'node'];
 
   /**
    * {@inheritdoc}
@@ -43,8 +43,8 @@ class TwigDebugMarkupTest extends BrowserTestBase {
 
     $cache = $this->container->get('theme.registry')->get();
     // Create array of Twig templates.
-    $templates = drupal_find_theme_templates($cache, $extension, drupal_get_path('theme', 'test_theme'));
-    $templates += drupal_find_theme_templates($cache, $extension, drupal_get_path('module', 'node'));
+    $templates = drupal_find_theme_templates($cache, $extension, $this->getThemePath('test_theme'));
+    $templates += drupal_find_theme_templates($cache, $extension, $this->getModulePath('node'));
 
     // Create a node and test different features of the debug markup.
     $node = $this->drupalCreateNode();
@@ -55,6 +55,7 @@ class TwigDebugMarkupTest extends BrowserTestBase {
     $this->assertStringContainsString("THEME HOOK: 'node'", $output, 'Theme call information found.');
     $this->assertStringContainsString('* node--1--full' . $extension . PHP_EOL . '   x node--1' . $extension . PHP_EOL . '   * node--page--full' . $extension . PHP_EOL . '   * node--page' . $extension . PHP_EOL . '   * node--full' . $extension . PHP_EOL . '   * node' . $extension, $output, 'Suggested template files found in order and node ID specific template shown as current template.');
     $this->assertStringContainsString(Html::escape('node--<script type="text/javascript">alert(\'yo\');</script>'), (string) $output);
+    $this->assertStringContainsString('<!-- INVALID FILE NAME SUGGESTIONS:' . PHP_EOL . '   See https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!theme.api.php/function/hook_theme_suggestions_alter' . PHP_EOL . '   invalid_theme_suggestions' . PHP_EOL . '-->', $output, 'Twig debug markup found invalid suggestions.');
     $template_filename = $templates['node__1']['path'] . '/' . $templates['node__1']['template'] . $extension;
     $this->assertStringContainsString("BEGIN OUTPUT from '$template_filename'", $output, 'Full path to current template file found.');
 

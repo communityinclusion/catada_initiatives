@@ -19,7 +19,7 @@ abstract class DateTimeHandlerTestBase extends ViewsKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['datetime_test', 'node', 'datetime', 'field'];
+  protected static $modules = ['datetime_test', 'node', 'datetime', 'field'];
 
   /**
    * Name of the field.
@@ -28,14 +28,14 @@ abstract class DateTimeHandlerTestBase extends ViewsKernelTestBase {
    *
    * @var string
    */
-  protected static $field_name = 'field_date';
+  protected static $fieldName = 'field_date';
 
   /**
    * Type of the field.
    *
    * @var string
    */
-  protected static $field_type = 'datetime';
+  protected static $fieldType = 'datetime';
 
   /**
    * Nodes to test.
@@ -45,9 +45,16 @@ abstract class DateTimeHandlerTestBase extends ViewsKernelTestBase {
   protected $nodes = [];
 
   /**
+   * Column map.
+   *
+   * @var string[]
+   */
+  protected array $map;
+
+  /**
    * {@inheritdoc}
    */
-  protected function setUp($import_test_views = TRUE) {
+  protected function setUp($import_test_views = TRUE): void {
     parent::setUp($import_test_views);
 
     $this->installSchema('node', 'node_access');
@@ -61,9 +68,9 @@ abstract class DateTimeHandlerTestBase extends ViewsKernelTestBase {
     ]);
     $node_type->save();
     $fieldStorage = FieldStorageConfig::create([
-      'field_name' => static::$field_name,
+      'field_name' => static::$fieldName,
       'entity_type' => 'node',
-      'type' => static::$field_type,
+      'type' => static::$fieldType,
       'settings' => ['datetime_type' => DateTimeItem::DATETIME_TYPE_DATETIME],
     ]);
     $fieldStorage->save();
@@ -83,7 +90,7 @@ abstract class DateTimeHandlerTestBase extends ViewsKernelTestBase {
     ];
 
     // Load test views.
-    ViewTestData::createTestViews(get_class($this), ['datetime_test']);
+    ViewTestData::createTestViews(static::class, ['datetime_test']);
   }
 
   /**

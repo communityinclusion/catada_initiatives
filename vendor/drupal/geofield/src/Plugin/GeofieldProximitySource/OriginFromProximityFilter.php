@@ -90,8 +90,8 @@ class OriginFromProximityFilter extends GeofieldProximitySourceBase implements C
 
     $user_input = $form_state->getUserInput();
     $proximity_filters_sources = $this->getAvailableProximityFilters();
-    $user_input_proximity_filter = isset($user_input['options']['source_configuration']['source_proximity_filter']) ? $user_input['options']['source_configuration']['source_proximity_filter'] : current(array_keys($proximity_filters_sources));
-    $source_proximity_filter = isset($this->configuration['source_proximity_filter']) ? $this->configuration['source_proximity_filter'] : $user_input_proximity_filter;
+    $user_input_proximity_filter = $user_input['options']['source_configuration']['source_proximity_filter'] ?? current(array_keys($proximity_filters_sources));
+    $source_proximity_filter = $this->configuration['source_proximity_filter'] ?? $user_input_proximity_filter;
 
     if (!empty($proximity_filters_sources)) {
       $form['source_proximity_filter'] = [
@@ -112,7 +112,7 @@ class OriginFromProximityFilter extends GeofieldProximitySourceBase implements C
         '#tag' => 'div',
         '#value' => $this->t('No Geofield Proximity Filter found. At least one should be set for this Proximity Field be able to work.'),
         "#attributes" => [
-          'class' => ['proximity-filter-warning', 'red'],
+          'class' => ['geofield-warning', 'red'],
         ],
       ];
       $form_state->setError($form['source_proximity_filter_warning'], $this->t('This Proximity Field cannot work. Dismiss this and add & setup a Geofield Proximity Filter before.'));

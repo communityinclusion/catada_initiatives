@@ -171,7 +171,7 @@ class DefaultLazyPluginCollectionTest extends LazyPluginCollectionTestBase {
    */
   public function testCount() {
     $this->setupPluginCollection();
-    $this->assertSame(3, $this->defaultPluginCollection->count());
+    $this->assertCount(3, $this->defaultPluginCollection);
   }
 
   /**
@@ -235,7 +235,7 @@ class DefaultLazyPluginCollectionTest extends LazyPluginCollectionTestBase {
     $this->defaultPluginCollection->setConfiguration(['cherry' => ['value' => 'kiwi', 'id' => 'cherry']]);
     $expected['cherry'] = ['value' => 'kiwi', 'id' => 'cherry'];
     $config = $this->defaultPluginCollection->getConfiguration();
-    $this->assertSame(['cherry' => ['value' => 'kiwi', 'id' => 'cherry']], $config);
+    $this->assertSame($expected, $config);
 
   }
 

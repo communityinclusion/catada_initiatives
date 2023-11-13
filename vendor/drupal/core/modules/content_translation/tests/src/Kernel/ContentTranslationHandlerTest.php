@@ -70,7 +70,7 @@ class ContentTranslationHandlerTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->state = $this->container->get('state');
@@ -93,8 +93,14 @@ class ContentTranslationHandlerTest extends KernelTestBase {
    *   Whether or not the entity is the default translation.
    * @param bool $translation_form
    *   Whether or not the form is a translation form.
+   * @param bool $is_submitted
+   *   Whether or not the form should be marked as submitted.
+   * @param bool $is_rebuilding
+   *   Whether or not the form should be flagged for rebuild.
    * @param array $expected
    *   The expected altered element.
+   * @param bool $display_warning
+   *   Whether or not the warning message should be displayed.
    *
    * @dataProvider providerTestEntityFormSharedElements
    *
@@ -133,7 +139,7 @@ class ContentTranslationHandlerTest extends KernelTestBase {
       $messages = $this->messenger->messagesByType('warning');
       $this->assertCount(1, $messages);
       $expected_message = sprintf('Fields that apply to all languages are hidden to avoid conflicting changes. <a href="%s">Edit them on the original language form</a>.', $entity->toUrl('edit-form')->toString());
-      $this->assertEquals($expected_message, reset($messages));
+      $this->assertSame($expected_message, (string) reset($messages));
     }
   }
 

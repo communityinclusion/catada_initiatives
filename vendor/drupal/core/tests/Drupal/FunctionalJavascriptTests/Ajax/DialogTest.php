@@ -21,10 +21,10 @@ class DialogTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'stark';
 
   /**
-   * Test sending non-JS and AJAX requests to open and manipulate modals.
+   * Tests sending non-JS and AJAX requests to open and manipulate modals.
    */
   public function testDialog() {
     $this->drupalLogin($this->drupalCreateUser(['administer contact forms']));
@@ -46,7 +46,7 @@ class DialogTest extends WebDriverTestBase {
     // expected.
     $this->getSession()->getPage()->clickLink('Link 1 (modal)');
 
-    // Clicking the link triggers a AJAX request/response.
+    // Clicking the link triggers an AJAX request/response.
     // Opens a Dialog panel.
     $link1_dialog_div = $this->assertSession()->waitForElementVisible('css', 'div.ui-dialog');
     $this->assertNotNull($link1_dialog_div, 'Link was used to open a dialog ( modal )');
@@ -97,7 +97,7 @@ class DialogTest extends WebDriverTestBase {
     $contents_no_target = $no_target_dialog->find('css', 'div.ui-dialog-content');
     $this->assertNotNull($contents_no_target, 'non-modal dialog opens ( no target ). ');
     $id = $contents_no_target->getAttribute('id');
-    $partial_match = strpos($id, 'drupal-dialog-ajax-testdialog-contents') === 0;
+    $partial_match = str_starts_with($id, 'drupal-dialog-ajax-testdialog-contents');
     $this->assertTrue($partial_match, 'The non-modal ID has the expected prefix.');
 
     $no_target_button = $no_target_dialog->findButton('Close');
@@ -125,7 +125,7 @@ class DialogTest extends WebDriverTestBase {
     $button2_dialog = $this->assertSession()->waitForElementVisible('css', 'div.ui-dialog-content');
     $this->assertNotNull($button2_dialog, 'Non-modal content displays as expected.');
 
-    // Use a link to close the pagnel opened by button 2.
+    // Use a link to close the panel opened by button 2.
     $this->getSession()->getPage()->clickLink('Link 4 (close non-modal if open)');
 
     // Form modal.
@@ -153,7 +153,7 @@ class DialogTest extends WebDriverTestBase {
     $hidden_button_text = [];
     foreach ($hidden_buttons as $button) {
       $styles = $button->getAttribute('style');
-      $this->assertTrue((stripos($styles, 'display: none;') !== FALSE));
+      $this->assertStringContainsStringIgnoringCase('display: none;', $styles);
       $hidden_button_text[] = $button->getAttribute('value');
     }
 
@@ -162,7 +162,7 @@ class DialogTest extends WebDriverTestBase {
     $moved_to_buttonpane_buttons = $this->getSession()->getPage()->findAll('css', '.ui-dialog-buttonpane button');
     $this->assertCount(2, $moved_to_buttonpane_buttons);
     foreach ($moved_to_buttonpane_buttons as $key => $button) {
-      $this->assertEqual($button->getText(), $hidden_button_text[$key]);
+      $this->assertEquals($hidden_button_text[$key], $button->getText());
     }
 
     // Reset: close the form.
@@ -172,8 +172,7 @@ class DialogTest extends WebDriverTestBase {
     $this->drupalGet('admin/structure/contact/add');
     // Check we get a chunk of the code, we can't test the whole form as form
     // build id and token with be different.
-    $contact_form = $this->xpath("//form[@id='contact-form-add-form']");
-    $this->assertTrue(!empty($contact_form), 'Non-JS entity form page present.');
+    $this->assertSession()->elementExists('xpath', "//form[@id='contact-form-add-form']");
 
     // Reset: Return to the dialog links page.
     $this->drupalGet('ajax-test/dialog');
@@ -187,6 +186,40 @@ class DialogTest extends WebDriverTestBase {
 
     $form_title = $dialog_add->find('css', "span.ui-dialog-title:contains('Add contact form')");
     $this->assertNotNull($form_title, 'The add form title is as expected.');
+  }
+
+  /**
+   * Tests dialog link opener with different HTTP methods.
+   */
+  public function testHttpMethod(): void {
+    $assert = $this->assertSession();
+    $script = <<<SCRIPT
+      (function() {
+        return document.querySelector('div[aria-describedby="drupal-modal"]').offsetWidth;
+      }())
+      SCRIPT;
+
+    // Open the modal dialog with POST HTTP method.
+    $this->drupalGet('/ajax-test/http-methods');
+    $this->clickLink('Link');
+    $assert->assertWaitOnAjaxRequest();
+    $assert->pageTextContains('Modal dialog contents');
+    $width = $this->getSession()->getDriver()->evaluateScript($script);
+    // The theme is adding 4px as padding and border on each side.
+    $this->assertSame(808, $width);
+
+    // Switch to GET HTTP method.
+    // @see \Drupal\ajax_test\Controller\AjaxTestController::httpMethods()
+    \Drupal::state()->set('ajax_test.http_method', 'GET');
+
+    // Open the modal dialog with GET HTTP method.
+    $this->drupalGet('/ajax-test/http-methods');
+    $this->clickLink('Link');
+    $assert->assertWaitOnAjaxRequest();
+    $assert->pageTextContains('Modal dialog contents');
+    $width = $this->getSession()->getDriver()->evaluateScript($script);
+    // The theme is adding 4px as padding and border on each side.
+    $this->assertSame(808, $width);
   }
 
 }

@@ -55,10 +55,9 @@
         "drupal/captcha": "^1.0@beta",
         "drupal/computed_field": "^3.0@alpha",
         "drupal/conditional_fields": "^4.0@alpha",
-        "drupal/console": "~1.0",
-        "drupal/core": "^9.5.11",
-        "drupal/core-composer-scaffold": "^9.2",
-        "drupal/core-dev": "^9.1",
+        "drupal/core": "^10.1.6",
+        "drupal/core-composer-scaffold": "^10.1.6",
+        "drupal/core-dev": "^10.1.6",
         "drupal/csv_importer": "1.x-dev",
         "drupal/ctools": "^3.7",
         "drupal/ds": "^3.2",
@@ -98,20 +97,18 @@
         "drupal/token": "^1.5",
         "drupal/token_custom": "^1.0@alpha",
         "drupal/token_filter": "^2.1",
-        "drupal/upgrade_status": "^3.11",
+        "drupal/upgrade_status": "^4.0",
         "drupal/viewfield": "^3.0@alpha",
         "drupal/views_bulk_operations": "^4.0@RC",
         "drupal/views_data_export": "^1.0@beta",
         "drupal/workflow": "^1.1",
-        "drush/drush": "^10.3",
-        "egulias/email-validator": "^2.1.22",
+        "drush/drush": "^12.4",
         "pear/archive_tar": "^1.4.10",
-        "symfony/debug": "^4.4.19",
-        "symfony/dependency-injection": "^4.4",
-        "symfony/event-dispatcher": "^4.4",
-        "symfony/filesystem": "^4.4",
-        "symfony/finder": "^4.4",
-        "symfony/http-foundation": "^4.4.7",
+        "symfony/dependency-injection": "^6.3.0",
+        "symfony/filesystem": "^6.3.0",
+        "symfony/finder": "^6.3.0",
+        "symfony/http-foundation": "^6.3.0",
+        "symfony/process": "^6.3.0",
         "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0.0",
         "webmozart/path-util": "^2.3",
@@ -128,10 +125,11 @@
             "composer/installers": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "php-http/discovery": true,
-            "drupal/console-extend-plugin": true,
             "cweagans/composer-patches": true,
             "drupal/core-composer-scaffold": true,
-            "zaporylie/composer-drupal-optimizations": true
+            "zaporylie/composer-drupal-optimizations": true,
+            "drupal/console-extend-plugin": true,
+            "phpstan/extension-installer": true
         }
     },
     "autoload": {
@@ -168,6 +166,9 @@
             "drush/Commands/{$name}": ["type:drupal-drush"]
         },
         "drupal-scaffold": {
+            "locations": {
+                "web-root": "web/"
+            },
             "initial": {
                 ".editorconfig": "../.editorconfig",
                 ".gitattributes": "../.gitattributes"

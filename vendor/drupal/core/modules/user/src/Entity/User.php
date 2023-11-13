@@ -195,6 +195,8 @@ class User extends ContentEntityBase implements UserInterface {
     $roles = $this->getRoles(TRUE);
     $roles[] = $rid;
     $this->set('roles', array_unique($roles));
+
+    return $this;
   }
 
   /**
@@ -202,6 +204,8 @@ class User extends ContentEntityBase implements UserInterface {
    */
   public function removeRole($rid) {
     $this->set('roles', array_diff($this->getRoles(TRUE), [$rid]));
+
+    return $this;
   }
 
   /**
@@ -226,7 +230,7 @@ class User extends ContentEntityBase implements UserInterface {
   /**
    * {@inheritdoc}
    */
-  public function setPassword($password) {
+  public function setPassword(#[\SensitiveParameter] $password) {
     $this->get('pass')->value = $password;
     return $this;
   }
@@ -301,6 +305,9 @@ class User extends ContentEntityBase implements UserInterface {
    * {@inheritdoc}
    */
   public function activate() {
+    if ($this->isAnonymous()) {
+      throw new \LogicException('The anonymous user account should remain blocked at all times.');
+    }
     $this->get('status')->value = 1;
     return $this;
   }
@@ -366,15 +373,7 @@ class User extends ContentEntityBase implements UserInterface {
    * {@inheritdoc}
    */
   public function isAnonymous() {
-    return $this->id() == 0;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getUsername() {
-    @trigger_error('\Drupal\Core\Session\AccountInterface::getUsername() is deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0. Use \Drupal\Core\Session\AccountInterface::getAccountName() or \Drupal\user\UserInterface::getDisplayName() instead. See https://www.drupal.org/node/2572493', E_USER_DEPRECATED);
-    return $this->getAccountName();
+    return $this->id() === 0 || $this->id() === '0';
   }
 
   /**
@@ -404,15 +403,18 @@ class User extends ContentEntityBase implements UserInterface {
   /**
    * {@inheritdoc}
    */
-  public function setExistingPassword($password) {
+  public function setExistingPassword(#[\SensitiveParameter] $password) {
     $this->get('pass')->existing = $password;
+    return $this;
   }
 
   /**
    * {@inheritdoc}
    */
   public function checkExistingPassword(UserInterface $account_unchanged) {
-    return strlen($this->get('pass')->existing) > 0 && \Drupal::service('password')->check(trim($this->get('pass')->existing), $account_unchanged->getPassword());
+    $existing = $this->get('pass')->existing;
+    return $existing !== NULL && strlen($existing) > 0 &&
+      \Drupal::service('password')->check(trim($existing), $account_unchanged->getPassword());
   }
 
   /**
@@ -573,7 +575,7 @@ class User extends ContentEntityBase implements UserInterface {
    *   The allowed values.
    */
   public static function getAllowedTimezones() {
-    return array_keys(system_time_zones());
+    return \DateTimeZone::listIdentifiers();
   }
 
   /**

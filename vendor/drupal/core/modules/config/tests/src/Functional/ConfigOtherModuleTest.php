@@ -65,7 +65,8 @@ class ConfigOtherModuleTest extends BrowserTestBase {
     // Ensure that optional configuration with unmet dependencies is only
     // installed once all the dependencies are met.
     $this->assertNull($this->getStorage()->load('other_module_test_unmet'), 'The optional configuration config_test.dynamic.other_module_test_unmet whose dependencies are not met is not created.');
-    $this->assertNull($this->getStorage()->load('other_module_test_optional_entity_unmet'), 'The optional configuration config_test.dynamic.other_module_test_optional_entity_unmet whose dependencies are not met is not created.');    $this->installModule('config_test_language');
+    $this->assertNull($this->getStorage()->load('other_module_test_optional_entity_unmet'), 'The optional configuration config_test.dynamic.other_module_test_optional_entity_unmet whose dependencies are not met is not created.');
+    $this->installModule('config_test_language');
     $this->assertNull($this->getStorage()->load('other_module_test_optional_entity_unmet'), 'The optional configuration config_test.dynamic.other_module_test_optional_entity_unmet whose dependencies are met is not created.');
     $this->installModule('config_install_dependency_test');
     $this->assertNotEmpty($this->getStorage()->load('other_module_test_unmet'), 'The optional configuration config_test.dynamic.other_module_test_unmet whose dependencies are met is now created.');
@@ -89,6 +90,11 @@ class ConfigOtherModuleTest extends BrowserTestBase {
     // recreated.
     $this->installModule('config');
     $this->assertNull($this->getStorage()->load('other_module_test_optional_entity_unmet'), 'The optional configuration config_test.dynamic.other_module_test_optional_entity_unmet whose dependencies are met is not installed when an unrelated module is installed.');
+
+    // Ensure that enforced dependencies do not overwrite base ones.
+    $this->installModule('config_install_dependency_enforced_combo_test');
+    $this->assertTrue(\Drupal::moduleHandler()->moduleExists('config_install_dependency_enforced_combo_test'), 'The config_install_dependency_enforced_combo_test module is installed.');
+    $this->assertNull($this->getStorage()->load('config_test.dynamic.enforced_and_base_dependencies'), 'The optional configuration config_test.dynamic.enforced_and_base_dependencies whose enforced dependencies are met but base module dependencies are not met is not created.');
   }
 
   /**
@@ -107,11 +113,11 @@ class ConfigOtherModuleTest extends BrowserTestBase {
    */
   public function testUninstall() {
     $this->installModule('views');
-    $this->assertTrue($this->getStorage('view')->load('frontpage') === NULL, 'After installing Views, frontpage view which is dependant on the Node and Views modules does not exist.');
+    $this->assertNull($this->getStorage('view')->load('frontpage'), 'After installing Views, frontpage view which is dependant on the Node and Views modules does not exist.');
     $this->installModule('node');
-    $this->assertTrue($this->getStorage('view')->load('frontpage') !== NULL, 'After installing Node, frontpage view which is dependant on the Node and Views modules exists.');
+    $this->assertNotNull($this->getStorage('view')->load('frontpage'), 'After installing Node, frontpage view which is dependant on the Node and Views modules exists.');
     $this->uninstallModule('node');
-    $this->assertTrue($this->getStorage('view')->load('frontpage') === NULL, 'After uninstalling Node, frontpage view which is dependant on the Node and Views modules does not exist.');
+    $this->assertNull($this->getStorage('view')->load('frontpage'), 'After uninstalling Node, frontpage view which is dependant on the Node and Views modules does not exist.');
   }
 
   /**

@@ -60,7 +60,7 @@ class FormHelper {
     $keys = array_keys($conditions);
     $update_keys = FALSE;
     foreach ($conditions as $id => $values) {
-      if (strpos($id, $search) !== FALSE) {
+      if (str_contains($id, $search)) {
         $update_keys = TRUE;
         $new_id = str_replace($search, $replace, $id);
         // Replace the key and keep the array in the same order.
@@ -198,6 +198,9 @@ class FormHelper {
    *
    * @param array $elements
    *   A render array element having a #states property as described above.
+   *
+   * @see \Drupal\form_test\Form\JavascriptStatesForm
+   * @see \Drupal\FunctionalJavascriptTests\Core\Form\JavascriptStatesTest
    */
   public static function processStates(array &$elements) {
     $elements['#attached']['library'][] = 'core/drupal.states';

@@ -1,4 +1,0 @@
-services:
-  nodeaccess.helper:
-    class: Drupal\nodeaccess\NodeAccessHelper
-    arguments: ['@database', '@entity_type.manager', '@config.factory']

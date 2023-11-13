@@ -8,7 +8,7 @@ delete it and install it again via composer!
 Simply change into the Drupal directory and use composer to install
 search_api_solr:
 
-```
+```shell
 cd $DRUPAL
 composer require drupal/search_api_solr
 ```
@@ -34,20 +34,51 @@ the [Apache Solr Reference Guide](https://solr.apache.org/guide/) or use
 docker-compose with
 https://github.com/docker-solr/docker-solr-examples/blob/master/docker-compose/docker-compose.yml
 
-The preferred way for local developent is to use DDev where you can easily add
-the pre-definded
-[solr-cloud service](https://github.com/docker-solr/docker-solr-examples/blob/master/docker-compose/docker-compose.yml).
+The preferred way for local development is to use DDEV where you can easily add
+[ddev-solr](https://github.com/mkalkbrenner/ddev-solr) using this command:
+```shell
+ddev get mkalkbrenner/ddev-solr
+ddev restart
+```
 
-Once Solr Cloud is running with DDev you don't need to deal with any configset
-files like described in the sections below. Just enable the
-search_api_solr_admin sub-module and configure the Search API Server to use
-the Solr Cloud Connector with Basic Auth. The username "solr" and the password
-"SolrRocks" are pre-configured in `.ddev/solr-cloud/security.json`. Now you
-create or update your collection any time by clicking the "Upload Configset"
-button on the Serch API server details page. Or automate things using
+For Drupal and Search API Solr you need to configure a Search API server using
+Solr as backend and `Solr Cloud with Basic Auth` as its connector. As mentioned
+above, username "solr" and password "SolrRocks" are the pre-configured
+credentials for Basic Authentication in `.ddev/solr/security.json`.
+
+Solr requires a Drupal-specific configset for any collection that should be used
+to index Drupal's content. (In Solr Cloud "collections" are the equivalent to
+"cores" in classic Solr installations. Actually, in a big Solr Cloud installation
+a collection might consist of multiple cores across all Solr Cloud nodes.)
+
+Starting from Search API Solr module version 4.2.1 you don't need to deal with
+configsets manually anymore. Just enable the `search_api_solr_admin` sub-module
+which is part of Search API Solr. Now you create or update your "collections" at
+any time by clicking the "Upload Configset" button on the Search API server
+details page (see installation steps below), or use `drush` to do this with
+
 ```
-ddev drush search_api_solr:upload-configset SERVER_ID
+ddev drush --numShards=1 search-api-solr:upload-configset SEARCH_API_SERVER_ID
 ```
+
+Note:  Replace `SEARCH_API_SERVER_ID` with your Search API server machine name.
+The number of "shards" should always be "1" as this local installation only
+runs a single Solr node.
+
+### Installation steps
+
+1. Enable the `search_api_solr_admin` module. (This sub-module is included in Search API Solr >= 4.2.1)
+2. Create a search server using the Solr backend and select `Solr Cloud with Basic Auth` as connector:
+    - HTTP protocol: `http`
+    - Solr node: `solr`
+    - Solr port: `8983`
+    - Solr path: `/`
+    - Default Solr collection: `techproducts` (You can define any name here. The collection will be created automatically.)
+    - Username: `solr`
+    - Password: `SolrRocks`
+3. On the server's "view" page click the `Upload Configset` button and check the "Upload (and overwrite) configset" checkbox.
+4. Set the number of shards to `1`.
+5. Press `Upload`.Once Solr is running with DDEV you don't need to deal with any configset
 
 Setting up Solr (single core) - the classic way
 -----------------------------------------------
@@ -178,6 +209,19 @@ the need for advanced features or customizations.
 
 ![Jump Start Config-Sets](https://github.com/mkalkbrenner/search_api_solr/workflows/Jump%20Start%20Config-Sets/badge.svg?branch=4.x)
 
+Updating Solr
+-------------
+
+Whenever you update your Solr installation it is recommended that you generate a
+new config-set and deploy it. The deployment depends on the installation
+variation you choose before. It is also recommended to re-index yur content
+after an update. But if it is a minor update it should be save to just queue all
+contentfor re-indexing.
+
+When performing a major version update like from Solr 6 to Solr 8 it is
+recommended to delete the core or collection and recreate it like described in
+the installation instructions above.
+
 Search API Solr features
 ========================
 
@@ -194,7 +238,7 @@ a Solr Query Debugger and shows how content gets indexed.
 Regarding third-party features, the following are supported:
 
 - autocomplete
-  - Introduced by module: search_api_autocomplete
+  - Introduced by module: search_api_solr_autocomplete
   - Lets you add autocompletion capabilities to search forms on the site.
 - facets
   - Introduced by module: facet
@@ -319,6 +363,20 @@ you enabled "Retrieve result data from Solr". In this case you have to enable
 the "Solr dummy fields" processor and add as many dummy fields to the index as
 you require. Afterwards you should manipulate these fields via API.
 
+Troubleshooting Facets
+----------------------
+Facetting on fulltext fields is not yet supported. We recommend the use of
+string fields for that purpose.
+
+Trie based field types were deprecated in Solr 6 and with Solr 7 we switched to
+the point based equivalents. But lucene doesn't support a mincount of "0" for
+these field types. We recommend the use of string fields instead of numeric ones
+for that purpose.
+
+If updating from Search API Solr 8.x-1.x or from Solr versions before 7 to Solr
+7 or 8, check your Search API index' field configurations to avoid these errors
+that will lead to exceptions and zero results.
+
 Support
 =======
 
@@ -340,7 +398,8 @@ configuration management.
 We leverage the [solarium library](http://www.solarium-project.org/). You can
 also interact with solarium's API using our hooks and callbacks or via event
 listeners.
-This way you can for example add any solr specific parameter to a query you need.
+This way you can for example add any solr specific parameter to a query you
+need.
 
 But if you create Search API Queries by yourself in code there's an easier way.
 You can simply set the required parameter as option prefixed by 'solr_param_'.
@@ -389,3 +448,4 @@ drupal folder:
 phpunit -c core --group search_api_solr
 ```
 (The exact command varies on your setup and paths.)
+

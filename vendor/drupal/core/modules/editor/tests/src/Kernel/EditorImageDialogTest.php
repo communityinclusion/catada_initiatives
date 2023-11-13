@@ -13,6 +13,7 @@ use Drupal\node\Entity\NodeType;
  * Tests EditorImageDialog validation and conversion functionality.
  *
  * @group editor
+ * @group legacy
  */
 class EditorImageDialogTest extends EntityKernelTestBase {
 
@@ -28,7 +29,7 @@ class EditorImageDialogTest extends EntityKernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'node',
     'file',
     'editor',
@@ -40,10 +41,9 @@ class EditorImageDialogTest extends EntityKernelTestBase {
   /**
    * Sets up the test.
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installEntitySchema('file');
-    $this->installSchema('system', ['key_value_expire']);
     $this->installSchema('node', ['node_access']);
     $this->installSchema('file', ['file_usage']);
     $this->installConfig(['node']);
@@ -79,7 +79,6 @@ class EditorImageDialogTest extends EntityKernelTestBase {
     $type->save();
     node_add_body_field($type);
     $this->installEntitySchema('user');
-    \Drupal::service('router.builder')->rebuild();
   }
 
   /**
@@ -88,7 +87,7 @@ class EditorImageDialogTest extends EntityKernelTestBase {
   public function testEditorImageDialog() {
     $input = [
       'editor_object' => [
-        'src' => '/sites/default/files/inline-images/somefile.png',
+        'src' => '/sites/default/files/inline-images/some-file.png',
         'alt' => 'fda',
         'width' => '',
         'height' => '',
@@ -104,7 +103,7 @@ class EditorImageDialogTest extends EntityKernelTestBase {
       ],
       '_drupal_ajax' => '1',
       'ajax_page_state' => [
-        'theme' => 'bartik',
+        'theme' => 'olivero',
         'theme_token' => 'some-token',
         'libraries' => '',
       ],
@@ -123,7 +122,7 @@ class EditorImageDialogTest extends EntityKernelTestBase {
 
     // Assert these two values are present and we don't get the 'not-this'
     // default back.
-    $this->assertEqual(FALSE, $form_state->getValue(['attributes', 'hasCaption'], 'not-this'));
+    $this->assertFalse($form_state->getValue(['attributes', 'hasCaption'], 'not-this'));
   }
 
 }

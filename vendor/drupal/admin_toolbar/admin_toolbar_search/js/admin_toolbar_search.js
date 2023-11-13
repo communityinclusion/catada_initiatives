@@ -19,11 +19,16 @@
 
       var $self = this;
 
-      $('#toolbar-bar', context).once('admin-toolbar-search').each(function () {
+      const elements = once('admin-toolbar-search', '#toolbar-bar', context);
+      $(elements).each(function () {
         $self.links = [];
 
         var $searchTab = $(this).find('#admin-toolbar-search-tab')
         var $searchInput = $searchTab.find('#admin-toolbar-search-input');
+
+        if ($searchInput.length === 0) {
+          return;
+        }
 
         $searchInput.autocomplete({
           minLength: 2,
@@ -31,7 +36,7 @@
           source: function (request, response) {
             var data = $self.handleAutocomplete(request.term);
             if (!$self.extraFetched && drupalSettings.adminToolbarSearch.loadExtraLinks) {
-              $.getJSON( Drupal.url('admin/admin-toolbar-search'), function( data ) {
+              $.getJSON( Drupal.url('admin/admin-toolbar-search'), function ( data ) {
                 $(data).each(function () {
                   var item = this;
                   item.label = this.labelRaw + ' ' + this.value;
@@ -64,7 +69,7 @@
         }).data('ui-autocomplete')._renderItem = (function (ul, item) {
           ul.addClass('admin-toolbar-search-autocomplete-list');
           return $('<li>')
-            .append('<div>' + item.labelRaw + ' <span class="admin-toolbar-search-url">' + item.value + '</span></div>')
+            .append('<div ><a href="' + item.value + '" onclick="window.open(this.href); return false;" >' + item.labelRaw + ' <span class="admin-toolbar-search-url">' + item.value + '</span></a></div>')
             .appendTo(ul);
         });
 

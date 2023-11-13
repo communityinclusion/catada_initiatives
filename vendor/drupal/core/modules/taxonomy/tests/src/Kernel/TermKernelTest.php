@@ -18,12 +18,12 @@ class TermKernelTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['filter', 'taxonomy', 'text', 'user'];
+  protected static $modules = ['filter', 'taxonomy', 'text', 'user'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['filter']);
     $this->installEntitySchema('taxonomy_term');
@@ -38,7 +38,7 @@ class TermKernelTest extends KernelTestBase {
     // Delete a valid term.
     $valid_term->delete();
     $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['vid' => $vocabulary->id()]);
-    $this->assertTrue(empty($terms), 'Vocabulary is empty after deletion');
+    $this->assertEmpty($terms, 'Vocabulary is empty after deletion');
   }
 
   /**
@@ -57,16 +57,16 @@ class TermKernelTest extends KernelTestBase {
     $term_storage = $this->container->get('entity_type.manager')->getStorage('taxonomy_term');
     $term_storage->resetCache([$child_term_id]);
     $child_term = Term::load($child_term_id);
-    $this->assertTrue(!empty($child_term), 'Child term is not deleted if only one of its parents is removed.');
+    $this->assertNotEmpty($child_term, 'Child term is not deleted if only one of its parents is removed.');
 
     $parent_term2->delete();
     $term_storage->resetCache([$child_term_id]);
     $child_term = Term::load($child_term_id);
-    $this->assertTrue(empty($child_term), 'Child term is deleted if all of its parents are removed.');
+    $this->assertEmpty($child_term, 'Child term is deleted if all of its parents are removed.');
   }
 
   /**
-   * Test a taxonomy with terms that have multiple parents of different depths.
+   * Tests a taxonomy with terms that have multiple parents of different depths.
    */
   public function testTaxonomyVocabularyTree() {
     // Create a new vocabulary with 6 terms.
@@ -121,10 +121,10 @@ class TermKernelTest extends KernelTestBase {
       }
       $depth_count[$element->depth]++;
     }
-    $this->assertEqual(3, $depth_count[0], 'Three elements in taxonomy tree depth 0.');
-    $this->assertEqual(2, $depth_count[1], 'Two elements in taxonomy tree depth 1.');
-    $this->assertEqual(2, $depth_count[2], 'Two elements in taxonomy tree depth 2.');
-    $this->assertEqual(1, $depth_count[3], 'One element in taxonomy tree depth 3.');
+    $this->assertEquals(3, $depth_count[0], 'Three elements in taxonomy tree depth 0.');
+    $this->assertEquals(2, $depth_count[1], 'Two elements in taxonomy tree depth 1.');
+    $this->assertEquals(2, $depth_count[2], 'Two elements in taxonomy tree depth 2.');
+    $this->assertEquals(1, $depth_count[3], 'One element in taxonomy tree depth 3.');
 
     /** @var \Drupal\taxonomy\TermStorageInterface $storage */
     $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
@@ -155,17 +155,45 @@ class TermKernelTest extends KernelTestBase {
     // Create a unsaved term.
     $term = $entity_manager->getStorage('taxonomy_term')->create([
       'vid' => $vocabulary->id(),
-      'name' => 'Inator',
+      'name' => 'Foo',
     ]);
 
     // Confirm we can get the view of unsaved term.
     $render_array = $entity_manager->getViewBuilder('taxonomy_term')
       ->view($term);
-    $this->assertTrue(!empty($render_array), 'Term view builder is built.');
+    $this->assertNotEmpty($render_array, 'Term view builder is built.');
 
     // Confirm we can render said view.
     $rendered = \Drupal::service('renderer')->renderPlain($render_array);
-    $this->assertTrue(!empty(trim($rendered)), 'Term is able to be rendered.');
+    $this->assertNotEmpty(trim($rendered), 'Term is able to be rendered.');
+  }
+
+  /**
+   * @covers \Drupal\taxonomy\TermStorage::deleteTermHierarchy
+   * @group legacy
+   */
+  public function testDeleteTermHierarchyDeprecation(): void {
+    $vocabulary = $this->createVocabulary();
+    $term = $this->createTerm($vocabulary);
+
+    /** @var \Drupal\taxonomy\TermStorageInterface $storage */
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $this->expectDeprecation('Drupal\taxonomy\TermStorage::deleteTermHierarchy() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. It is a no-op since 8.6.0. Parent references are automatically cleared when deleting a taxonomy term. See https://www.drupal.org/node/2936675');
+    $storage->deleteTermHierarchy([$term->tid]);
+  }
+
+  /**
+   * @covers \Drupal\taxonomy\TermStorage::updateTermHierarchy
+   * @group legacy
+   */
+  public function testUpdateTermHierarchyDeprecation(): void {
+    $vocabulary = $this->createVocabulary();
+    $term = $this->createTerm($vocabulary);
+
+    /** @var \Drupal\taxonomy\TermStorageInterface $storage */
+    $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $this->expectDeprecation('Drupal\taxonomy\TermStorage::updateTermHierarchy() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. It is a no-op since 8.6.0. Parent references are automatically updated when updating a taxonomy term. See https://www.drupal.org/node/2936675');
+    $storage->updateTermHierarchy($term);
   }
 
 }

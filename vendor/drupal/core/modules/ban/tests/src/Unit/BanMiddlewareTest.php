@@ -38,7 +38,7 @@ class BanMiddlewareTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->kernel = $this->createMock('Symfony\Component\HttpKernel\HttpKernelInterface');
@@ -81,7 +81,7 @@ class BanMiddlewareTest extends UnitTestCase {
     $expected_response = new Response(200);
     $this->kernel->expects($this->once())
       ->method('handle')
-      ->with($request, HttpKernelInterface::MASTER_REQUEST, TRUE)
+      ->with($request, HttpKernelInterface::MAIN_REQUEST, TRUE)
       ->willReturn($expected_response);
 
     $response = $this->banMiddleware->handle($request);

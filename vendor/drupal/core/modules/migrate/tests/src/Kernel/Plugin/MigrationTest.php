@@ -17,7 +17,7 @@ class MigrationTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['migrate'];
+  protected static $modules = ['migrate', 'migrate_expected_migrations_test'];
 
   /**
    * Tests Migration::getProcessPlugins()
@@ -108,6 +108,8 @@ class MigrationTest extends KernelTestBase {
   public function testGetMigrationDependencies() {
     $plugin_manager = \Drupal::service('plugin.manager.migration');
     $plugin_definition = [
+      'id' => 'foo',
+      'deriver' => 'fooDeriver',
       'process' => [
         'f1' => 'bar',
         'f2' => [
@@ -145,10 +147,14 @@ class MigrationTest extends KernelTestBase {
             ],
           ],
         ],
+        'f7' => [
+          'plugin' => 'migration_lookup',
+          'migration' => 'foo',
+        ],
       ],
     ];
     $migration = $plugin_manager->createStubMigration($plugin_definition);
-    $this->assertSame(['required' => [], 'optional' => ['m1', 'm2', 'm3', 'm4', 'm5']], $migration->getMigrationDependencies());
+    $this->assertSame(['required' => [], 'optional' => ['m1', 'm2', 'm3', 'm4', 'm5']], $migration->getMigrationDependencies(TRUE));
   }
 
   /**
@@ -168,8 +174,13 @@ class MigrationTest extends KernelTestBase {
    *
    * @covers ::getTrackLastImported
    * @covers ::isTrackLastImported
+   *
+   * @group legacy
    */
   public function testGetTrackLastImported() {
+    $this->expectDeprecation('Drupal\migrate\Plugin\Migration::setTrackLastImported() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. There is no replacement. See https://www.drupal.org/node/3282894');
+    $this->expectDeprecation('Drupal\migrate\Plugin\Migration::getTrackLastImported() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. There is no replacement. See https://www.drupal.org/node/3282894');
+    $this->expectDeprecation('Drupal\migrate\Plugin\Migration::isTrackLastImported() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. There is no replacement. See https://www.drupal.org/node/3282894');
     $migration = \Drupal::service('plugin.manager.migration')->createStubMigration([]);
     $migration->setTrackLastImported(TRUE);
     $this->assertEquals(TRUE, $migration->getTrackLastImported());

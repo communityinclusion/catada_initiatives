@@ -8,7 +8,7 @@ module.exports = {
     browser.drupalUninstall();
   },
 
-  'Test login': browser => {
+  'Test login': (browser) => {
     browser
       .drupalCreateUser({
         name: 'user',
@@ -18,7 +18,7 @@ module.exports = {
       .drupalLogin({ name: 'user', password: '123' })
       .drupalRelativeURL('/admin/reports')
       .waitForElementVisible('body', 1000)
-      .assert.containsText('h1', 'Reports')
+      .assert.textContains('h1', 'Reports')
       .assert.noDeprecationErrors();
   },
 };

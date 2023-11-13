@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Tests\UnitTestCase;
+use Drupal\user\Entity\User;
 
 /**
  * @coversDefaultClass \Drupal\contact\MailHandler
@@ -68,7 +69,7 @@ class MailHandlerTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->mailManager = $this->createMock('\Drupal\Core\Mail\MailManagerInterface');
     $this->languageManager = $this->createMock('\Drupal\Core\Language\LanguageManagerInterface');
@@ -86,11 +87,11 @@ class MailHandlerTest extends UnitTestCase {
 
     $this->languageManager->expects($this->any())
       ->method('getDefaultLanguage')
-      ->will($this->returnValue($language));
+      ->willReturn($language);
 
     $this->languageManager->expects($this->any())
       ->method('getCurrentLanguage')
-      ->will($this->returnValue($language));
+      ->willReturn($language);
   }
 
   /**
@@ -144,7 +145,7 @@ class MailHandlerTest extends UnitTestCase {
           $this->assertEquals($key, $result['key']);
           $this->assertEquals($to, $result['to']);
           $this->assertEquals($langcode, $result['langcode']);
-          $this->assertArrayEquals($params, $result['params']);
+          $this->assertEquals($params, $result['params']);
           $this->assertEquals($from, $result['from']);
         });
     $this->userStorage->expects($this->any())
@@ -292,7 +293,7 @@ class MailHandlerTest extends UnitTestCase {
    *   Mock sender for testing.
    */
   protected function getMockSender($anonymous = TRUE, $mail_address = 'anonymous@drupal.org') {
-    $sender = $this->createMock('\Drupal\Core\Session\AccountInterface');
+    $sender = $this->createMock(User::class);
     $sender->expects($this->once())
       ->method('isAnonymous')
       ->willReturn($anonymous);

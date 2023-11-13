@@ -2,10 +2,15 @@
 
 namespace Drupal\database_statement_monitoring_test;
 
-use Drupal\Core\Database\Query\Condition;
+@trigger_error('\Drupal\database_statement_monitoring_test\LoggedStatementsTrait is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. There is no replacement. See https://www.drupal.org/node/3318162', E_USER_DEPRECATED);
 
 /**
  * Trait for Connection classes that can store logged statements.
+ *
+ * @deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. There is no
+ *   replacement.
+ *
+ * @see https://www.drupal.org/node/3318162
  */
 trait LoggedStatementsTrait {
 
@@ -46,17 +51,16 @@ trait LoggedStatementsTrait {
    * {@inheritdoc}
    */
   public function getDriverClass($class) {
-    // Override because the base class uses reflection to determine namespace
-    // based on object, which would break.
-    $namespace = (new \ReflectionClass(get_parent_class($this)))->getNamespaceName();
-    $driver_class = $namespace . '\\' . $class;
-    if (class_exists($driver_class)) {
-      return $driver_class;
+    static $fixed_namespace;
+    if (!$fixed_namespace) {
+      // Override because we've altered the namespace in
+      // \Drupal\KernelTests\Core\Cache\EndOfTransactionQueriesTest::getDatabaseConnectionInfo()
+      // to use the logging Connection classes. Set to a proper database driver
+      // namespace.
+      $this->connectionOptions['namespace'] = (new \ReflectionClass(get_parent_class($this)))->getNamespaceName();
+      $fixed_namespace = TRUE;
     }
-    elseif ($class == 'Condition') {
-      return Condition::class;
-    }
-    return $class;
+    return parent::getDriverClass($class);
   }
 
   /**

@@ -136,8 +136,10 @@ class EntityOperations implements ContainerInjectionInterface {
       // become the default revision only when it is replicated to the default
       // workspace.
       $entity->isDefaultRevision(FALSE);
+    }
 
-      // Track the workspaces in which the new revision was saved.
+    // Track the workspaces in which the new revision was saved.
+    if (!$entity->isSyncing()) {
       $field_name = $entity_type->getRevisionMetadataKey('workspace');
       $entity->{$field_name}->target_id = $this->workspaceManager->getActiveWorkspace()->id();
     }
@@ -268,7 +270,7 @@ class EntityOperations implements ContainerInjectionInterface {
     // know in advance (before hook_entity_presave()) that the new revision will
     // be a pending one.
     if ($this->workspaceManager->hasActiveWorkspace()) {
-      $form['#entity_builders'][] = [get_called_class(), 'entityFormEntityBuild'];
+      $form['#entity_builders'][] = [static::class, 'entityFormEntityBuild'];
     }
 
     // Run the workspace conflict validation constraint when the entity form is

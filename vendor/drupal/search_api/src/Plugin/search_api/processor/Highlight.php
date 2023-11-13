@@ -129,6 +129,7 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
       'suffix' => '</strong>',
       'excerpt' => TRUE,
       'excerpt_length' => 256,
+      'excerpt_always' => FALSE,
       'highlight' => 'always',
       'highlight_partial' => FALSE,
       'exclude_fields' => [],
@@ -170,6 +171,12 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
       '#title' => $this->t('Create excerpt'),
       '#description' => $this->t('When enabled, an excerpt will be created for searches with keywords, containing all occurrences of keywords in a fulltext field.'),
       '#default_value' => $this->configuration['excerpt'],
+    ];
+    $form['excerpt_always'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Create excerpt even if no search keys are available'),
+      '#description' => $this->t('When enabled, an excerpt will be created even with an empty query string.'),
+      '#default_value' => $this->configuration['excerpt_always'],
     ];
     $form['excerpt_length'] = [
       '#type' => 'number',
@@ -238,8 +245,14 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
   public function postprocessSearchResults(ResultSetInterface $results) {
     $query = $results->getQuery();
     if (!$results->getResultCount()
-      || $query->getProcessingLevel() != QueryInterface::PROCESSING_FULL
-      || !($keys = $this->getKeywords($query))) {
+      || $query->getProcessingLevel() != QueryInterface::PROCESSING_FULL) {
+      return;
+    }
+
+    // Only return an excerpt on an empty keyword if requested by configuration.
+    $keys = $this->getKeywords($query);
+    $excerpt_always = $this->configuration['excerpt_always'];
+    if (!$excerpt_always && !$keys) {
       return;
     }
 
@@ -252,7 +265,7 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
     if ($this->configuration['excerpt']) {
       $this->addExcerpts($result_items, $excerpt_fulltext_fields, $keys);
     }
-    if ($this->configuration['highlight'] != 'never') {
+    if ($this->configuration['highlight'] !== 'never' && !empty($keys)) {
       $highlighted_fields = $this->highlightFields($result_items, $keys);
       foreach ($highlighted_fields as $item_id => $item_fields) {
         $item = $result_items[$item_id];
@@ -479,6 +492,12 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
       $context_length = round($excerpt_length / 2) - 1;
     }
 
+    // If the text or the excerpt length are empty for some reason, we cannot
+    // provide an excerpt. Bail early in that case.
+    if (!$text || !$excerpt_length) {
+      return NULL;
+    }
+
     while ($length < $excerpt_length && !empty($remaining_keys)) {
       $found_keys = [];
       foreach ($remaining_keys as $key) {
@@ -559,8 +578,20 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
       $remaining_keys = $found_keys;
     }
 
+    $ellipses = $this->getEllipses();
+
+    // If no keys are given or no keys match the excerpt, either return an
+    // excerpt from the beginning (if "excerpt_always" is enabled) or nothing.
     if (!$ranges) {
-      // We didn't find any keyword matches, return NULL.
+      if ($this->configuration['excerpt_always']) {
+        $snippet = mb_substr($text, 0, $excerpt_length);
+        $pos = mb_strrpos($snippet, ' ');
+        if ($pos > $excerpt_length / 2) {
+          $snippet = mb_substr($snippet, 0, $pos);
+        }
+        return trim($snippet) . $ellipses[2];
+      }
+
       return NULL;
     }
 
@@ -601,7 +632,6 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
       return NULL;
     }
 
-    $ellipses = $this->getEllipses();
     $excerpt = $ellipses[0] . implode($ellipses[1], $out) . $ellipses[2];
 
     // Since we stripped the tags at the beginning, highlighting doesn't need to
@@ -625,8 +655,27 @@ class Highlight extends ProcessorPluginBase implements PluginFormInterface {
    *   The given text with all occurrences of search keywords highlighted.
    */
   protected function highlightField($text, array $keys, $html = TRUE) {
+    $text = "$text";
     if ($html) {
-      $texts = preg_split('#((?:</?[[:alpha:]](?:[^>"\']*|"[^"]*"|\'[^\']\')*>)+)#i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+      $regex = <<<'REGEX'
+%
+  (                # Capturing group around the whole expression, so
+                   # PREG_SPLIT_DELIM_CAPTURE works correctly
+    \s*+           # Optional leading whitespace (possessive since backtracking
+                   # would make no sense here)
+    (?:            # One or more HTML tags
+      <            # Start of HTML tag
+      /?           # Could be a closing tag
+      [[:alpha:]]  # Tag names always start with a letter
+      [^>]*        # Anything except the angle bracket closing the tag
+      >            # End of HTML tag
+    )+             # End: One or more HTML tags
+    \s*            # Optional trailing whitespace
+  )                # End: Capturing group
+%ix
+REGEX;
+
+      $texts = preg_split($regex, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
       if ($texts === FALSE) {
         $args = [
           '%error_num' => preg_last_error(),

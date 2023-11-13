@@ -8,7 +8,6 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -17,13 +16,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @FieldFormatter(
  *   id = "entity_reference_entity_view",
  *   label = @Translation("Rendered entity"),
- *   description = @Translation("Display the referenced entities rendered by entity_view()."),
+ *   description = @Translation("Render the referenced entity."),
  *   field_types = {
  *     "entity_reference"
  *   }
  * )
  */
-class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implements ContainerFactoryPluginInterface {
+class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase {
 
   /**
    * The number of times this formatter allows rendering the same entity.
@@ -66,7 +65,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
   protected static $recursiveRenderDepth = [];
 
   /**
-   * Constructs a EntityReferenceEntityFormatter instance.
+   * Constructs an EntityReferenceEntityFormatter instance.
    *
    * @param string $plugin_id
    *   The plugin_id for the formatter.
@@ -81,7 +80,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
    * @param string $view_mode
    *   The view mode.
    * @param array $third_party_settings
-   *   Any third party settings settings.
+   *   Any third party settings.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -131,7 +130,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
     $elements['view_mode'] = [
       '#type' => 'select',
       '#options' => $this->entityDisplayRepository->getViewModeOptions($this->getFieldSetting('target_type')),
-      '#title' => t('View mode'),
+      '#title' => $this->t('View mode'),
       '#default_value' => $this->getSetting('view_mode'),
       '#required' => TRUE,
     ];
@@ -147,7 +146,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
 
     $view_modes = $this->entityDisplayRepository->getViewModeOptions($this->getFieldSetting('target_type'));
     $view_mode = $this->getSetting('view_mode');
-    $summary[] = t('Rendered as @mode', ['@mode' => isset($view_modes[$view_mode]) ? $view_modes[$view_mode] : $view_mode]);
+    $summary[] = $this->t('Rendered as @mode', ['@mode' => $view_modes[$view_mode] ?? $view_mode]);
 
     return $summary;
   }
@@ -198,8 +197,8 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
       $elements[$delta] = $view_builder->view($entity, $view_mode, $entity->language()->getId());
 
       // Add a resource attribute to set the mapping property's value to the
-      // entity's url. Since we don't know what the markup of the entity will
-      // be, we shouldn't rely on it for structured data such as RDFa.
+      // entity's URL. Since we don't know what the markup of the entity will
+      // be, we shouldn't rely on it for structured data.
       if (!empty($items[$delta]->_attributes) && !$entity->isNew() && $entity->hasLinkTemplate('canonical')) {
         $items[$delta]->_attributes += ['resource' => $entity->toUrl()->toString()];
       }

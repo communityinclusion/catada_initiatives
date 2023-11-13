@@ -22,7 +22,7 @@ abstract class MediaKernelTestBase extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'media',
     'media_test_source',
     'image',
@@ -56,7 +56,7 @@ abstract class MediaKernelTestBase extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installEntitySchema('user');

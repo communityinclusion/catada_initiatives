@@ -19,7 +19,7 @@ abstract class ContentTranslationTestBase extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['text'];
+  protected static $modules = ['text'];
 
   /**
    * The entity type being tested.
@@ -82,7 +82,10 @@ abstract class ContentTranslationTestBase extends BrowserTestBase {
    */
   protected $manager;
 
-  protected function setUp() {
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
 
     $this->setupLanguages();
@@ -168,8 +171,6 @@ abstract class ContentTranslationTestBase extends BrowserTestBase {
     // Enable translation for the current entity type and ensure the change is
     // picked up.
     \Drupal::service('content_translation.manager')->setEnabled($this->entityTypeId, $this->bundle, TRUE);
-
-    \Drupal::service('router.builder')->rebuild();
   }
 
   /**

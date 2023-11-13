@@ -3,6 +3,7 @@
 namespace Drupal\Tests\node\Functional;
 
 use Drupal\Core\Database\Database;
+use Drupal\user\Entity\User;
 
 /**
  * Tests the node access grants cache context service.
@@ -17,7 +18,7 @@ class NodeAccessGrantsCacheContextTest extends NodeTestBase {
    *
    * @var array
    */
-  public static $modules = ['node_access_test'];
+  protected static $modules = ['node_access_test'];
 
   /**
    * {@inheritdoc}
@@ -35,9 +36,21 @@ class NodeAccessGrantsCacheContextTest extends NodeTestBase {
   protected $noAccessUser;
 
   /**
+   * User without permission to view content.
+   *
+   * @var \Drupal\user\Entity\User
+   */
+  protected User $noAccessUser2;
+
+  /**
+   * @var array
+   */
+  protected array $userMapping;
+
+  /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     node_access_rebuild();
@@ -76,13 +89,15 @@ class NodeAccessGrantsCacheContextTest extends NodeTestBase {
    *
    * @param array $expected
    *   Expected values, keyed by user ID, expected cache contexts as values.
+   *
+   * @internal
    */
-  protected function assertUserCacheContext(array $expected) {
+  protected function assertUserCacheContext(array $expected): void {
     foreach ($expected as $uid => $context) {
       if ($uid > 0) {
         $this->drupalLogin($this->userMapping[$uid]);
       }
-      $this->assertIdentical($context, $this->container->get('cache_context.user.node_grants')->getContext('view'));
+      $this->assertSame($context, $this->container->get('cache_context.user.node_grants')->getContext('view'));
     }
     $this->drupalLogout();
   }

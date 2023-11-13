@@ -2,48 +2,35 @@
 
 namespace Drupal\Tests;
 
-use Drupal\Tests\Traits\ExpectDeprecationTrait;
+use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\PhpUnit\ExpectDeprecationTrait;
 
 /**
- * @coversDefaultClass \Drupal\Tests\Traits\ExpectDeprecationTrait
+ * Ensures Drupal has test coverage of Symfony's deprecation testing.
  *
  * @group Test
  * @group legacy
  */
-class ExpectDeprecationTest extends UnitTestCase {
+class ExpectDeprecationTest extends TestCase {
   use ExpectDeprecationTrait;
 
   /**
-   * @covers ::addExpectedDeprecationMessage
+   * Tests expectDeprecation.
    */
   public function testExpectDeprecation() {
-    $this->addExpectedDeprecationMessage('Test deprecation');
+    $this->expectDeprecation('Test deprecation');
     @trigger_error('Test deprecation', E_USER_DEPRECATED);
   }
 
   /**
-   * @covers ::addExpectedDeprecationMessage
+   * Tests expectDeprecation in isolated test.
+   *
    * @runInSeparateProcess
    * @preserveGlobalState disabled
    */
   public function testExpectDeprecationInIsolation() {
-    $this->addExpectedDeprecationMessage('Test isolated deprecation');
-    $this->addExpectedDeprecationMessage('Test isolated deprecation2');
+    $this->expectDeprecation('Test isolated deprecation');
     @trigger_error('Test isolated deprecation', E_USER_DEPRECATED);
-    @trigger_error('Test isolated deprecation2', E_USER_DEPRECATED);
-  }
-
-  /**
-   * @covers ::expectDeprecation
-   *
-   * @todo the expectedDeprecation annotation does not work if tests are marked
-   *   skipped.
-   * @see https://github.com/symfony/symfony/pull/25757
-   */
-  public function testDeprecatedExpectDeprecation() {
-    $this->addExpectedDeprecationMessage('ExpectDeprecationTrait::expectDeprecation is deprecated in drupal:8.8.5 and is removed from drupal:9.0.0. Use ::addExpectedDeprecationMessage() instead. See https://www.drupal.org/node/3106024');
-    $this->expectDeprecation('Test deprecated expectDeprecation');
-    @trigger_error('Test deprecated expectDeprecation', E_USER_DEPRECATED);
   }
 
 }

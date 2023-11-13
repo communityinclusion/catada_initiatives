@@ -3,6 +3,7 @@
 namespace Drupal\user;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Datetime\TimeZoneFormHelper;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityConstraintViolationListInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
@@ -71,13 +72,13 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
     $language_interface = \Drupal::languageManager()->getCurrentLanguage();
 
     // Check for new account.
-    $register = $account->isAnonymous();
+    $register = $account->isNew();
 
     // For a new account, there are 2 sub-cases:
     // $self_register: A user creates their own, new, account
-    //   (path '/user/register')
+    // (path '/user/register')
     // $admin_create: An administrator creates a new account for another user
-    //   (path '/admin/people/create')
+    // (path '/admin/people/create')
     // If the current user is logged in and has permission to create users
     // then it must be the second case.
     $admin_create = $register && $account->access('create');
@@ -96,9 +97,10 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
     $form['account']['mail'] = [
       '#type' => 'email',
       '#title' => $this->t('Email address'),
-      '#description' => $this->t('A valid email address. All emails from the system will be sent to this address. The email address is not made public and will only be used if you wish to receive a new password or wish to receive certain news or notifications by email.'),
+      '#description' => $this->t('The email address is not made public. It will only be used if you need to be contacted about your account or for opted-in notifications.'),
       '#required' => !(!$account->getEmail() && $user->hasPermission('administer users')),
       '#default_value' => (!$register ? $account->getEmail() : ''),
+      '#access' => $account->mail->access('edit'),
     ];
 
     // Only show name field on registration form or user can change own username.
@@ -130,9 +132,11 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
       // To skip the current password field, the user must have logged in via a
       // one-time link and have the token in the URL. Store this in $form_state
       // so it persists even on subsequent Ajax requests.
-      if (!$form_state->get('user_pass_reset') && ($token = $this->getRequest()->get('pass-reset-token'))) {
+      $request = $this->getRequest();
+      if (!$form_state->get('user_pass_reset') && ($token = $request->query->get('pass-reset-token'))) {
         $session_key = 'pass_reset_' . $account->id();
-        $user_pass_reset = isset($_SESSION[$session_key]) && hash_equals($_SESSION[$session_key], $token);
+        $session_value = $request->getSession()->get($session_key);
+        $user_pass_reset = isset($session_value) && hash_equals($session_value, $token);
         $form_state->set('user_pass_reset', $user_pass_reset);
       }
 
@@ -172,7 +176,7 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
     }
 
     // When not building the user registration form, prevent web browsers from
-    // autofilling/prefilling the email, username, and password fields.
+    // auto-filling/prefilling the email, username, and password fields.
     if (!$register) {
       foreach (['mail', 'name', 'pass'] as $key) {
         if (isset($form['account'][$key])) {
@@ -281,7 +285,7 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
     $system_date_config = \Drupal::config('system.date');
     $form['timezone'] = [
       '#type' => 'details',
-      '#title' => t('Locale settings'),
+      '#title' => $this->t('Locale settings'),
       '#open' => TRUE,
       '#weight' => 6,
       '#access' => $system_date_config->get('timezone.user.configurable'),
@@ -291,10 +295,10 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
     }
     $form['timezone']['timezone'] = [
       '#type' => 'select',
-      '#title' => t('Time zone'),
+      '#title' => $this->t('Time zone'),
       '#default_value' => $account->getTimezone() ?: $system_date_config->get('timezone.default'),
-      '#options' => system_time_zones($account->id() != $user->id(), TRUE),
-      '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
+      '#options' => TimeZoneFormHelper::getOptionsListByRegion($account->id() != $user->id()),
+      '#description' => $this->t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
     ];
 
     // If not set or selected yet, detect timezone for the current user only.
@@ -304,7 +308,7 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
       $form['timezone']['timezone']['#attributes'] = ['class' => ['timezone-detect']];
     }
 
-    return parent::form($form, $form_state, $account);
+    return parent::form($form, $form_state);
   }
 
   /**
@@ -352,7 +356,7 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
    */
   public function buildEntity(array $form, FormStateInterface $form_state) {
     // Change the roles array to a list of enabled roles.
-    // @todo: Alter the form state as the form values are directly extracted and
+    // @todo Alter the form state as the form values are directly extracted and
     //   set on the field, which throws an exception as the list requires
     //   numeric keys. Allow to override this per field. As this function is
     //   called twice, we have to prevent it from getting the array keys twice.
@@ -372,7 +376,7 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
     }
 
     // Set existing password if set in the form state.
-    $current_pass = trim($form_state->getValue('current_pass'));
+    $current_pass = trim($form_state->getValue('current_pass', ''));
     if (strlen($current_pass) > 0) {
       $account->setExistingPassword($current_pass);
     }
@@ -416,7 +420,7 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
       'preferred_admin_langcode',
     ];
     foreach ($violations->getByFields($field_names) as $violation) {
-      list($field_name) = explode('.', $violation->getPropertyPath(), 2);
+      [$field_name] = explode('.', $violation->getPropertyPath(), 2);
       $form_state->setErrorByName($field_name, $violation->getMessage());
     }
     parent::flagViolations($violations, $form, $form_state);
@@ -428,12 +432,10 @@ abstract class AccountForm extends ContentEntityForm implements TrustedCallbackI
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
-    $user = $this->getEntity($form_state);
+    $user = $this->getEntity();
     // If there's a session set to the users id, remove the password reset tag
     // since a new password was saved.
-    if (isset($_SESSION['pass_reset_' . $user->id()])) {
-      unset($_SESSION['pass_reset_' . $user->id()]);
-    }
+    $this->getRequest()->getSession()->remove('pass_reset_' . $user->id());
   }
 
 }

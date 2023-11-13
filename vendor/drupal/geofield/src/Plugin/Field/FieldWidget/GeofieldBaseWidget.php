@@ -3,7 +3,9 @@
 namespace Drupal\geofield\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\geofield\Plugin\GeofieldBackendManager;
@@ -49,7 +51,7 @@ abstract class GeofieldBaseWidget extends WidgetBase implements ContainerFactory
    * @param array $settings
    *   The formatter settings.
    * @param array $third_party_settings
-   *   Any third party settings settings.
+   *   Any third party settings.
    * @param \Drupal\geofield\GeoPHP\GeoPHPInterface $geophp_wrapper
    *   The geoPhpWrapper.
    * @param \Drupal\geofield\WktGeneratorInterface $wkt_generator
@@ -98,6 +100,18 @@ abstract class GeofieldBaseWidget extends WidgetBase implements ContainerFactory
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    // Attach Geofield Libraries.
+    $element['#attached']['library'] = [
+      'geofield/geofield_general',
+    ];
+
+    return ['value' => $element];
+  }
+
+  /**
    * Return the specific Geofield Backend Value.
    *
    * Falls back into WKT format, in case Geofield Backend undefined.
@@ -110,7 +124,7 @@ abstract class GeofieldBaseWidget extends WidgetBase implements ContainerFactory
    */
   protected function geofieldBackendValue($value) {
     $output = NULL;
-    /* @var \Geometry|null $geom */
+    /** @var \Geometry|null $geom */
     if ($this->geofieldBackend && $geom = $this->geoPhpWrapper->load($value)) {
       $output = $this->geofieldBackend->save($geom);
     }
