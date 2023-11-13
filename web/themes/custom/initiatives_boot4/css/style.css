@@ -1,0 +1,327 @@
+/**
+ * @file
+ *
+ *
+ * Subtheme specific CSS. Jenkins push 2
+ */
+ body, h1,h2,h3,h4 {
+	font-family: 'Roboto', sans-serif;
+}
+ #block-mainnavigation-2 ul#superfish-main {width: 72em; }
+ #block-mainnavigation-2 ul#superfish-main > li { width: 14em; }
+ #block-mainnavigation-2 ul#superfish-main > li,#block-mainnavigation-2 ul#superfish-main li.sf-depth-1.menuparent ul,#block-mainnavigation-2 ul#superfish-main li.sf-depth-1.menuparent ul li {
+     background-color: #fff;
+    }
+    #block-mainnavigation-2 ul#superfish-main li.sf-depth-1.menuparent{ height: 4em; }
+    .node--type-interagency-group #block-initiatives-boot4-content h3 {font-size: 1.3em; margin-top: 0.7em;}
+    .node--type-interagency-group #block-initiatives-boot4-content .field--name-field-other-partnerships-specify {margin-top: -1em;}
+    .node--type-interagency-group a[href="/taxonomy/term/404"] {display: none;}
+    label[for="partnerships-General-education-staff-including-guidance-counselors"] {width: 75%;}
+    .view-search-content ul li {font-size: 1.2em; padding: .4em 0;}
+    @media only screen and (min-width: 768px) {
+
+        .navbar-collapse.collapse {
+          display: block !important;
+        }
+    .collapse:not(.show) {
+
+        display: block;
+
+    }
+}
+#superfish-main ul {background-color: #fff; }
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    #superfish-main > li:nth-child(1) > a {color:white; background-color:#A5D48F;}
+    #superfish-main > li:nth-child(2) > a {color:white; background-color:#D26716;}
+    #superfish-main > li:nth-child(3) > a {color:white; background-color:#8665AB;}
+    #superfish-main > li:nth-child(4) > a {color:white; background-color:#00A6A5;}
+    #superfish-main > li:nth-child(4) > a:hover {color: white;}
+    #superfish-main > li:nth-child(5) > a {background-color: #3976B8; color:white;}
+    .lilright {padding-left:3em;}
+    #superfish-main > li {min-width: 180px; border:2px solid white;}
+
+    h1#siteTitle {width: 60%; float: left; margin-top: 20px; margin-bottom: 15px;}
+    h3.site-name-slogan {margin-bottom: 40px;}
+  }
+
+    /* Large devices (desktops, 992px and up) */
+    @media (min-width: 992px) {
+        #superfish-main > li {min-width: 180px; border:2px solid white;}
+
+    }
+    #superfish-main > li  > a {text-transform: uppercase; }
+
+   #block-schooldistricts .distNote { font-size: 85%; font-style: italic; }
+   label[for="partnerships-General-education-staff-including-guidance-counselors"],label[for="partners-General-education-staff-including-guidance-counselors"] { display: block; padding-left: 22px; margin-top: -24px;}
+   header a.navbar-brand { margin-top: 18px; width: 575px;}
+   #header #navbar-main {background-color: #fff;}
+   .red {
+	background-color: #b22d27
+}
+.redf {
+	color: #b22d27
+}
+.blue {
+	background-color: #00b4e6
+}
+.bluef {
+	color: #00b4e6
+}
+.green {
+	background-color: #5d9732
+}
+.greenf {
+	color: #5d9732
+}
+.dkblue {
+	background-color: #256496
+}
+.dkbluef {
+	color: #256496
+}
+.bg-dark {
+	background-color: #333!important;
+}
+.bg-darkf {
+	color: #333!important;
+}
+@media only screen and (min-width: 990px) {
+	#block-navigation nav li {
+		width: calc(100% / 4);
+	}
+}
+#block-navigation nav li {
+	font-size: 18px;
+	font-weight: 700;
+	padding-right: 5px;
+}
+#block-navigation nav li a:hover {
+	color: #fff;
+	opacity: 1
+}
+.navbar-dark .navbar-nav .nav-link:focus, .navbar-dark .navbar-nav .nav-link:hover, .navbar-dark .navbar-nav .nav-link {
+	color: rgba(255, 255, 255, 1.0);
+}
+
+.dropdown-toggle::after {
+       border-top: .6em solid;
+    border-right: .5em solid transparent;
+    border-bottom: 0;
+    border-left: .5em solid transparent;
+}
+/*-------Footer--------*/
+#footer {
+
+
+}
+.footer-copyright {
+	background-color: #0073AE;
+	color: #ffffff;
+	padding-top: 30px;
+	padding-bottom: 20px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 16px;
+	line-height: 24px;
+}
+.footer-copyright a {
+	color: #ffffff;
+	font-weight: 700
+}
+
+
+.footer-partners {
+	font-size: 12px;
+	line-height: 14px;
+	  padding: 20px 0 0;
+	      border: 15px #0073AE solid;
+}
+#page-wrapper .site-footer {background-color: #0077af;}
+.site-footer .footer-partners {background-color: #fff;}
+.site-footer .content .small {color: #333;margin-left: 25px;}
+#page .site-footer { padding-top: 0;}
+#sidebar_first aside.section .block { background-color:#F0F0F0 ; }
+#sidebar_first input.facets-checkbox {
+	margin-right:5px;
+}
+
+#sidebar_first .facets-widget-checkbox ul {
+	list-style-type:none;
+}
+/*#sidebar_first .block-facet--checkbox .facet-item label {
+
+    padding-left: 10px;
+
+
+}
+#sidebar_first .block-facet--checkbox .facet-item label[for="at_activities-63"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"], #sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-68"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-72"],#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-73"]{padding-left: 22px;
+margin-bottom: 27px;}
+#sidebar_first .block-facet--checkbox .facet-item label[for="focus_areas-75"] {margin-bottom: 66px;}
+*/
+
+#main-wrapper #main {padding-top: 15px;}
+ul.js-facets-checkbox-links {padding-left: 0;}
+/* #sidebar_first.sidebar .block {padding: 15px 6px;}  JR-removed */
+
+
+/* Cards */
+
+.card-body {
+   padding: 0 1.25rem;
+   }
+.card-body .field--name-field-state {
+  text-transform:uppercase;
+  }
+
+.card-header {
+border:none;
+padding: .5rem 1.25rem .5rem .75rem;
+}
+
+.card {
+    border: none;
+}
+.card p {
+    margin-bottom: .5rem;
+}
+
+span.node-readmore.nav-link {
+  padding:0;
+}
+
+.node--type-catada-initiative.node--view-mode-teaser.clearfix.card
+{margin-bottom:5px;}
+
+
+/* End Cards */
+
+
+.field--name-field-state.field--type-entity-reference {margin-bottom:.4rem;}
+.field--name-body.card-body {padding-left: 0;}
+.item-list h4.card-header {background-color: #fff;}
+.item-list h4.card-header a {color: #3b3b3b;}
+
+#sidebar_first input[type=checkbox] {
+    position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
+}
+
+#sidebar_first input[type=checkbox] + label {
+    padding-left:22px;
+    /*height:16px; */
+    display:inline-block;
+    line-height:19px;
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    font-size:16px;
+    vertical-align:middle;
+    cursor:pointer;
+
+}
+
+#sidebar_first input[type=checkbox]:checked + label {
+    background-image:url(../images/checkbox_checked.png);
+    background-position: 0 0;
+}
+
+
+#sidebar_first .facet-item label {
+background-image:url(../images/checkbox.png);
+background-position: 0 0;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+
+
+.sidebar h2 {
+  font-weight: 900;
+}
+
+li.facet-item,li.facet-summary-item--clear,li.facet-summary-item--facet {
+    font-family:'Cabin Condensed', sans-serif;
+}
+li.facet-summary-item--clear a,li.facet-summary-item--facet a {font-size: 120%; color: #000; }
+li.facet-summary-item--facet a {font-size: 109%; }
+li.facet-summary-item--clear {font-weight: bold; }
+span.facet-item__value {display: block;}
+li.facet-summary-item--facet span.facet-item__value {display: inline;}
+#block-yoursearch ul {padding-left: 18px;}
+a.searchJump.homeShow {
+		display:none;
+
+        }
+
+.view-solr-search-content .view-header #home_header {display: none;}
+.view-solr-search-content .view-header .resultCount {display: block;}
+.view-solr-search-content .view-header.homeShow #home_header {display:block;}
+.view-solr-search-content .view-header.homeShow .resultCount {display:none;}
+.view-solr-search-content .view-footer {display: block;}
+.view-solr-search-content .view-footer.homeShow {display: none;}
+.view-solr-search-content .view-content.row { display: block;}
+
+/*.view-solr-search-content .view-content.row.hideRow { display: none;}*/
+.view-solr-search-content nav {display: block;}
+.view-solr-search-content nav.hideRow {display: none;}
+#block-yoursearch div.searchIntro {display:none;}
+.facetShow #block-yoursearch div.searchIntro {display: block;}
+.button {
+    display: block;
+    width: 220px;
+    background:#0077af;
+    padding: 7px;
+    text-align: center;
+    border-radius: 5px;
+    color: white;
+    line-height: 20px;
+}
+#home_header .btn-primary {background:#0077af;}
+#moreInitiative.collapse { display: none;}
+#moreInitiative.collapse.show {display: block;}
+#home_header [aria-expanded="false"] > .expanded,
+#home_header [aria-expanded="true"] > .collapsed {
+  display: none;
+}
+
+
+
+/* Callout Submit Box */
+
+
+.callout-wrap {
+    background: #eee;
+    padding: 1rem 1rem 1rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 7px 7px 30px -5px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    margin-left:auto;
+    margin-right:auto;
+     /* border: solid rgb(178, 45, 39);
+      text-align: justify;
+      border-width: 3px;*/
+}
+
+
+
+.bracketer {
+    color:#256496;
+      background-color:#F9F8FD;
+      background-image: linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
+        linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
+        linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39)),
+        linear-gradient(rgb(178, 45, 39), rgb(178, 45, 39));
+
+      background-repeat: no-repeat;
+      background-size: 8px 3px;
+      background-position: top left, top right, bottom left, bottom right;
+
+      border: solid rgb(178, 45, 39);
+      text-align: justify;
+      border-width: 0 3px;
+      display: inline-block;
+      vertical-align: top;
+      padding: 25px 25px;
+      margin: 20px;
+    }

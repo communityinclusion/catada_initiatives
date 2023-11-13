@@ -44,6 +44,7 @@
     "require": {
         "php": ">=5.6",
         "components/highlightjs": "9.7.*",
+        "composer/installers": "*",
         "cweagans/composer-patches": "^1.6.5",
         "d3/d3": "3.5.*",
         "drupal/address": "^1.4",
