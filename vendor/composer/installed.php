@@ -3,7 +3,7 @@
         'name' => 'drupal-composer/drupal-project',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'b79038bd1292eee20c6be5ae03a8d3cba74c882e',
+        'reference' => 'e3bd7f8ded191464a14463182edab90209082469',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -343,7 +343,7 @@
         'drupal-composer/drupal-project' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'b79038bd1292eee20c6be5ae03a8d3cba74c882e',
+            'reference' => 'e3bd7f8ded191464a14463182edab90209082469',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -602,14 +602,12 @@
             ),
         ),
         'drupal/csv_importer' => array(
-            'pretty_version' => 'dev-1.x',
-            'version' => 'dev-1.x',
-            'reference' => '6c567125fe81b5f737a5b9e5acb33f78ebd96836',
+            'pretty_version' => '1.16.0',
+            'version' => '1.16.0.0',
+            'reference' => '8.x-1.16',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../web/modules/contrib/csv_importer',
-            'aliases' => array(
-                0 => '1.x-dev',
-            ),
+            'aliases' => array(),
             'dev_requirement' => false,
         ),
         'drupal/csv_serialization' => array(
@@ -640,14 +638,12 @@
             'dev_requirement' => false,
         ),
         'drupal/email_registration' => array(
-            'pretty_version' => 'dev-1.x',
-            'version' => 'dev-1.x',
-            'reference' => 'd81d9aa5e249fea8761d8ebc69c072de4ec35071',
+            'pretty_version' => '1.3.0',
+            'version' => '1.3.0.0',
+            'reference' => '8.x-1.3',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../web/modules/contrib/email_registration',
-            'aliases' => array(
-                0 => '1.x-dev',
-            ),
+            'aliases' => array(),
             'dev_requirement' => false,
         ),
         'drupal/entity' => array(
