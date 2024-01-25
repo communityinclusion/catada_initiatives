@@ -184,7 +184,7 @@ class Utility {
     $backend = $server->getBackend();
     $response = $backend->getSolrConnector()->getFile($dir_name);
     if (is_array($response)) {
-      // A connector might return a prepared list;
+      // A connector might return a prepared list.
       return $response;
     }
 
@@ -808,8 +808,8 @@ class Utility {
             // Using the 'phrase' or 'sloppy_phrase' parse mode, Search API
             // provides one big phrase as keys. Using the 'terms' parse mode,
             // Search API provides chunks of single terms as keys. But these
-            // chunks might contain not just real terms but again a phrase if
-            // you enter something like this in the search box:
+            // chunks might contain not just real terms but again an embedded
+            // phrase if you enter something like this in the search box:
             // term1 "term2 as phrase" term3.
             // This will be converted in this keys array:
             // ['term1', 'term2 as phrase', 'term3'].
@@ -923,11 +923,17 @@ class Utility {
                 $field = array_shift($split);
                 $boost = implode('', $split);
               }
-              // Do not apply fuzziness to "fulltext string" fields.
-              if (preg_match('/^t[^_]*string/', $field)) {
+
+              // Fuzziness isn't "compatible" with analyzed fields. In fact, it turns off the analyzer. So we build the
+              // query part without fuzziness first and add a second query part with fuzziness applied. These parts will
+              // be combined using an OR conjunction. Additionally, fuzziness should never be applied to fields of
+              // "fulltext string" types. In case of embedded phrases (see above) we might get a duplicate query part.
+              // Therfore, an array_unique() is performed later.
+              // @see https://www.drupal.org/project/search_api_solr/issues/3404623
+              if (('fuzzy_terms' === $parse_mode_id && $options['fuzzy_analyzer']) || preg_match('/^t[^_]*string/', $field)) {
                 $query_parts[] = $field . ':(' . $pre . implode(' ' . $pre, $k_without_fuzziness) . ')' . $boost;
               }
-              else {
+              if (!preg_match('/^t[^_]*string/', $field)) {
                 $query_parts[] = $field . ':(' . $pre . implode(' ' . $pre, $k) . ')' . $boost;
               }
             }
@@ -937,6 +943,8 @@ class Utility {
           }
       }
     }
+    // Remove duplicate query parts.
+    $query_parts = array_unique($query_parts);
 
     if (count($query_parts) === 1) {
       return $neg . reset($query_parts);
@@ -1156,8 +1164,11 @@ class Utility {
    * collisions.
    *
    * @param string $checkpoint
+   *   The check point value.
    * @param string $index_id
+   *   The index-id.
    * @param string $site_hash
+   *   The site_hash.
    *
    * @return string
    *   The formatted checkpoint ID.
@@ -1232,6 +1243,7 @@ class Utility {
    *   The Search API Server.
    *
    * @return \Drupal\search_api_solr\SolrConnectorInterface
+   *   Returns the Solr connector used for this backend.
    *
    * @throws \Drupal\search_api\SearchApiException
    * @throws \Drupal\search_api_solr\SearchApiSolrException
@@ -1252,6 +1264,7 @@ class Utility {
    *   The Search API Server.
    *
    * @return \Drupal\search_api_solr\SolrCloudConnectorInterface
+   *   The Solr Cloud connector interface.
    *
    * @throws \Drupal\search_api\SearchApiException
    * @throws \Drupal\search_api_solr\SearchApiSolrException
