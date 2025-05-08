@@ -16,7 +16,8 @@
         var m = window.location.search.indexOf("at_activities");
         var n = window.location.search.indexOf("focus_areas");
         var o = window.location.search.indexOf("state");
-        if(m > -1 || n > -1 || o > -1  ) {
+        var p = window.location.search.indexOf("year_of_implementation");
+        if(m > -1 || n > -1 || o > -1 || p > -1 ) {
             if ($('.view-header').hasClass('homeShow'))$('.view-header').removeClass('homeShow');
             if ($('.view-footer').hasClass('homeShow'))$('.view-footer').removeClass('homeShow');
             if ($('.view-content.row').hasClass('hideRow'))$('.view-content.row').removeClass('hideRow');
