@@ -13,7 +13,7 @@
 
 
       $(once('view-solr-search-content','.view-display-id-page_1',context)).each(function(){
-        var q = window.location.search.indexOf("year_of_implementation");
+        var q = window.location.search.indexOf("implementation");
         var m = window.location.search.indexOf("at_activities");
         var n = window.location.search.indexOf("focus_areas");
         var o = window.location.search.indexOf("state");
