@@ -13,10 +13,10 @@
 
 
       $(once('view-solr-search-content','.view-display-id-page_1',context)).each(function(){
+        var p = window.location.search.indexOf("year_of_implementation");
         var m = window.location.search.indexOf("at_activities");
         var n = window.location.search.indexOf("focus_areas");
         var o = window.location.search.indexOf("state");
-        var p = window.location.search.indexOf("year_of_implementation");
         if(m > -1 || n > -1 || o > -1 || p > -1 ) {
             if ($('.view-header').hasClass('homeShow'))$('.view-header').removeClass('homeShow');
             if ($('.view-footer').hasClass('homeShow'))$('.view-footer').removeClass('homeShow');
