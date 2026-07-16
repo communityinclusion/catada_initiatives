@@ -2,41 +2,25 @@
 
 /**
  * @file
- * API documentation for the Computed Field module.
+ * Hooks provided by the Computed field module.
  */
 
 /**
- * Alter the values of all computed fields.
- *
- * @param mixed $value
- *   The computed value that can be altered.
- * @param array $context
- *   An array containing the 'entity' and 'field_name'.
+ * @addtogroup hooks
+ * @{
  */
-function hook_computed_field_value_alter(&$value, array $context) {
-  $service = Drupal::service('computed_field.helpers');
 
-  // Only proceed when the hook does not exist.
-  if (!$service->computeFunctionNameExists($context['field_name'])) {
-    // Set all unimplemented computed fields to 42.
-    $value = 42;
-  }
+/**
+ * Perform alterations on Computed Field definitions.
+ *
+ * @param array &$info
+ *   Array of information on Computed Field plugins.
+ */
+function hook_computed_field_info_alter(array &$info) {
+  // Change the class of the 'foo' plugin.
+  $info['foo']['class'] = SomeOtherClass::class;
 }
 
 /**
- * Alter the value of a specific computed field.
- *
- * @param mixed $value
- *   The computed value that can be altered.
- * @param array $context
- *   An array containing the 'entity' and 'field_name'.
+ * @} End of "addtogroup hooks".
  */
-function hook_computed_field_FIELD_NAME_value_alter(&$value, array $context) {
-  $service = Drupal::service('computed_field.helpers');
-
-  // Only proceed when the hook does not exist.
-  if (!$service->computeFunctionNameExists($context['field_name'])) {
-    // Set this one computed field to 42.
-    $value = 42;
-  }
-}

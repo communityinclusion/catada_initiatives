@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "691ee804a6c491bc783712c34d98d200",
+    "content-hash": "a219f1afccf1390a739e57221e7617eb",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2840,26 +2840,26 @@
         },
         {
             "name": "drupal/computed_field",
-            "version": "3.0.1",
+            "version": "4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/computed_field.git",
-                "reference": "3.0.1"
+                "reference": "4.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/computed_field-3.0.1.zip",
-                "reference": "3.0.1",
-                "shasum": "43635d1c5ebf532562a010d26b3114a6375378a3"
+                "url": "https://ftp.drupal.org/files/projects/computed_field-4.0.0.zip",
+                "reference": "4.0.0",
+                "shasum": "16b1a59bd4937457cd4732579b5fe649aaf3a48d"
             },
             "require": {
-                "drupal/core": "^8 || ^9 || ^10 || ^11"
+                "drupal/core": "^10.2 || ^11"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "3.0.1",
-                    "datestamp": "1781516718",
+                    "version": "4.0.0",
+                    "datestamp": "1769008713",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -2908,7 +2908,7 @@
                     "homepage": "https://www.drupal.org/user/601534"
                 }
             ],
-            "description": "Defines a field type that allows values to be \"computed\" via PHP code.",
+            "description": "Provides a UI to add computed fields to entities.",
             "homepage": "https://www.drupal.org/project/computed_field",
             "support": {
                 "source": "https://git.drupalcode.org/project/computed_field"
@@ -3413,26 +3413,26 @@
         },
         {
             "name": "drupal/ctools",
-            "version": "3.15.0",
+            "version": "4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/ctools.git",
-                "reference": "8.x-3.15"
+                "reference": "4.1.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/ctools-8.x-3.15.zip",
-                "reference": "8.x-3.15",
-                "shasum": "84e360763162bf97dfb99a21a65580e7ea504bc6"
+                "url": "https://ftp.drupal.org/files/projects/ctools-4.1.0.zip",
+                "reference": "4.1.0",
+                "shasum": "69f5889cf557df9e55519390e6a95cfa31b67874"
             },
             "require": {
-                "drupal/core": "^9.3 || ^10"
+                "drupal/core": "^9.5 || ^10 || ^11"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-3.15",
-                    "datestamp": "1718145169",
+                    "version": "4.1.0",
+                    "datestamp": "1718144949",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -17614,7 +17614,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/captcha": 10,
-        "drupal/computed_field": 15,
         "drupal/conditional_fields": 15,
         "drupal/entity_usage": 15,
         "drupal/feeds": 15,

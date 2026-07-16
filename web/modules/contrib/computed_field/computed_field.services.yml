@@ -1,7 +1,11 @@
 services:
-  computed_field.helpers:
-    class: Drupal\computed_field\ComputedFieldHelpers
-    arguments: ['@entity_type.manager', '@module_handler']
-  computed_field.multiple_values_generator:
-    class: Drupal\computed_field\MultipleValuesGenerator
-    arguments: ['@entity_field.manager', '@plugin.manager.field.field_type']
+  plugin.manager.computed_field:
+    class: Drupal\computed_field\ComputedFieldManager
+    parent: default_plugin_manager
+
+  computed_field.computed_field_builder:
+    class: Drupal\computed_field\ComputedFieldBuilder
+    arguments: ['@entity_type.manager', '@render_placeholder_generator']
+
+  computed_field.computed_field_class_factory:
+    class: Drupal\computed_field\ComputedFieldClassFactory
