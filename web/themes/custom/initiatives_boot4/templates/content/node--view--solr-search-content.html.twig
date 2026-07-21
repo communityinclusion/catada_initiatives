@@ -76,9 +76,9 @@
   <header>
     {{ title_prefix }}
     {% if not page %}
-      <h4{{ title_attributes.addClass('card-header') }}>
+      <h3{{ title_attributes.addClass('card-header') }}>
         <a href="{{ url }}" rel="bookmark">{{ label }}</a>
-      </h4>
+      </h3>
     {% endif %}
     {{ title_suffix }}
     {% if display_submitted %}

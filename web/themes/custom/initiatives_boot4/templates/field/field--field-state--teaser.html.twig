@@ -62,7 +62,7 @@
     </div>
   {% else %}
     {% for item in items %}
-      <h5{{ attributes.addClass(classes, 'field__item','text-danger') }}>{{ item.content }}</h5>
+      <h4{{ attributes.addClass(classes, 'field__item','text-danger') }}>{{ item.content }}</h4>
     {% endfor %}
   {% endif %}
 {% else %}

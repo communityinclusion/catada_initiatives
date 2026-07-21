@@ -198,8 +198,8 @@ span.node-readmore.nav-link {
 
 .field--name-field-state.field--type-entity-reference {margin-bottom:.4rem;}
 .field--name-body.card-body {padding-left: 0;}
-.item-list h4.card-header {background-color: #fff;}
-.item-list h4.card-header a {color: #3b3b3b;}
+.item-list h3.card-header {background-color: #fff;font-size: 1.5rem;}
+.item-list h3.card-header a {color: #3b3b3b;}
 
 #sidebar_first input[type=checkbox] {
     position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
@@ -325,3 +325,5 @@ a.searchJump.homeShow {
       padding: 25px 25px;
       margin: 20px;
     }
+    .node--view-mode-teaser h4 {font-size: 1.2rem;}
+    .node--type-catada-initiative h2 {font-size: 1.6rem;}
