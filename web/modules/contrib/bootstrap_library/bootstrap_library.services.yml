@@ -1,0 +1,5 @@
+
+services:
+  Drupal\bootstrap_library\Hook\BootstrapLibraryHooks:
+    class: Drupal\bootstrap_library\Hook\BootstrapLibraryHooks
+    autowire: true

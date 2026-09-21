@@ -5,6 +5,8 @@
  */
 namespace Drupal\bootstrap_library;
 
+use Drupal\Component\Utility\DeprecationHelper;
+use Drupal\Core\Utility\Error;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -19,7 +21,7 @@ class BootstrapLibrarySettingsForm extends ConfigFormBase {
   public function getFormId() {
     return 'bootstrap_library_admin_settings';
   }
-  /** 
+  /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
@@ -28,12 +30,12 @@ class BootstrapLibrarySettingsForm extends ConfigFormBase {
     ];
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('bootstrap_library.settings');
-	
+
     $themes = \Drupal::service('theme_handler')->listInfo();
     $active_themes = array();
     foreach ($themes as $key => $theme) {
@@ -60,7 +62,7 @@ class BootstrapLibrarySettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('cdn.bootstrap'),
     );
     $form['cdn']['cdn_options'] = array(
-      '#type' => 'hidden', 
+      '#type' => 'hidden',
 	  '#value' => $data
 	);
 	// Production or minimized version
@@ -143,7 +145,7 @@ class BootstrapLibrarySettingsForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -387,8 +389,7 @@ function _bootstrap_library_cdn_versions() {
     }
   }
   catch (RequestException $e) {
-    watchdog_exception('bootstrap_library', $e->getMessage());
-    return FALSE;
+    DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '10.1.0', fn() => Error::logException(\Drupal::logger('bootstrap_library'), $e->getMessage()), fn() => watchdog_exception('bootstrap_library', $e->getMessage()));    return FALSE;
   }
   return $data;
 }
