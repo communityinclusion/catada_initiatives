@@ -479,38 +479,38 @@
         },
         {
             "name": "commerceguys/addressing",
-            "version": "v1.4.2",
-            "version_normalized": "1.4.2.0",
+            "version": "v2.3.1",
+            "version_normalized": "2.3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/commerceguys/addressing.git",
-                "reference": "406c7b5f0fbe4f6a64155c0fe03b1adb34d01308"
+                "reference": "504ed1765d7a6788830c197390879d677f54d868"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/commerceguys/addressing/zipball/406c7b5f0fbe4f6a64155c0fe03b1adb34d01308",
-                "reference": "406c7b5f0fbe4f6a64155c0fe03b1adb34d01308",
+                "url": "https://api.github.com/repos/commerceguys/addressing/zipball/504ed1765d7a6788830c197390879d677f54d868",
+                "reference": "504ed1765d7a6788830c197390879d677f54d868",
                 "shasum": ""
             },
             "require": {
-                "doctrine/collections": "^1.2 || ^2.0",
-                "php": ">=7.3"
+                "doctrine/collections": "^1.6 || ^2.0 || ^3.0",
+                "php": ">=8.0"
             },
             "require-dev": {
                 "ext-json": "*",
-                "mikey179/vfsstream": "^1.6.10",
-                "phpunit/phpunit": "^9.5",
-                "squizlabs/php_codesniffer": "^3.6",
-                "symfony/validator": "^4.4 || ^5.4 || ^6.0"
+                "mikey179/vfsstream": "^1.6.11",
+                "phpunit/phpunit": "^9.6",
+                "squizlabs/php_codesniffer": "^3.7",
+                "symfony/validator": "^5.4 || ^6.3 || ^7.0 || ^8.0"
             },
             "suggest": {
                 "symfony/validator": "to validate addresses"
             },
-            "time": "2023-02-15T10:11:14+00:00",
+            "time": "2026-08-23T14:17:54+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.x-dev"
+                    "dev-master": "2.x-dev"
                 }
             },
             "installation-source": "dist",
@@ -540,7 +540,7 @@
             ],
             "support": {
                 "issues": "https://github.com/commerceguys/addressing/issues",
-                "source": "https://github.com/commerceguys/addressing/tree/v1.4.2"
+                "source": "https://github.com/commerceguys/addressing/tree/v2.3.1"
             },
             "install-path": "../commerceguys/addressing"
         },
@@ -2185,32 +2185,32 @@
         },
         {
             "name": "doctrine/collections",
-            "version": "2.6.0",
-            "version_normalized": "2.6.0.0",
+            "version": "3.1.0",
+            "version_normalized": "3.1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/collections.git",
-                "reference": "7713da39d8e237f28411d6a616a3dce5e20d5de2"
+                "reference": "7c2f25ed928553a3de389ccb99aa46c0eedb2d4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/collections/zipball/7713da39d8e237f28411d6a616a3dce5e20d5de2",
-                "reference": "7713da39d8e237f28411d6a616a3dce5e20d5de2",
+                "url": "https://api.github.com/repos/doctrine/collections/zipball/7c2f25ed928553a3de389ccb99aa46c0eedb2d4d",
+                "reference": "7c2f25ed928553a3de389ccb99aa46c0eedb2d4d",
                 "shasum": ""
             },
             "require": {
                 "doctrine/deprecations": "^1",
-                "php": "^8.1",
-                "symfony/polyfill-php84": "^1.30"
+                "php": "^8.4",
+                "symfony/polyfill-php86": "^1.36"
             },
             "require-dev": {
                 "doctrine/coding-standard": "^14",
                 "ext-json": "*",
                 "phpstan/phpstan": "^2.1.30",
                 "phpstan/phpstan-phpunit": "^2.0.7",
-                "phpunit/phpunit": "^10.5.58 || ^11.5.42 || ^12.4"
+                "phpunit/phpunit": "^12.4"
             },
-            "time": "2026-01-15T10:01:58+00:00",
+            "time": "2026-04-29T20:41:02+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2254,7 +2254,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/collections/issues",
-                "source": "https://github.com/doctrine/collections/tree/2.6.0"
+                "source": "https://github.com/doctrine/collections/tree/3.1.0"
             },
             "funding": [
                 {
@@ -2478,32 +2478,34 @@
         },
         {
             "name": "drupal/address",
-            "version": "1.12.0",
-            "version_normalized": "1.12.0.0",
+            "version": "2.0.4",
+            "version_normalized": "2.0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/address.git",
-                "reference": "8.x-1.12"
+                "reference": "2.0.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/address-8.x-1.12.zip",
-                "reference": "8.x-1.12",
-                "shasum": "67dd4699040aabf0cd6169e437706fa6a39b0b3a"
+                "url": "https://ftp.drupal.org/files/projects/address-2.0.4.zip",
+                "reference": "2.0.4",
+                "shasum": "5a86f7abc028f3d9833784dbf0791a6e4463da8e"
             },
             "require": {
-                "commerceguys/addressing": "^1.4.2",
-                "drupal/core": "^9.2 || ^10",
-                "php": "^7.3 || ^8.0"
+                "commerceguys/addressing": "^2.1.1",
+                "drupal/core": "^9.5 || ^10 || ^11",
+                "php": "^8.0"
             },
             "require-dev": {
-                "drupal/token": "^1.0"
+                "drupal/diff": "^1",
+                "drupal/feeds": "^3",
+                "drupal/token": "^1"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.12",
-                    "datestamp": "1684710176",
+                    "version": "2.0.4",
+                    "datestamp": "1746462054",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -2521,7 +2523,7 @@
                     "homepage": "https://www.drupal.org/user/86106"
                 },
                 {
-                    "name": "Centarro",
+                    "name": "centarro",
                     "homepage": "https://www.drupal.org/user/3661446"
                 },
                 {
@@ -2529,16 +2531,8 @@
                     "homepage": "https://www.drupal.org/user/46549"
                 },
                 {
-                    "name": "googletorp",
-                    "homepage": "https://www.drupal.org/user/386230"
-                },
-                {
                     "name": "jsacksick",
                     "homepage": "https://www.drupal.org/user/972218"
-                },
-                {
-                    "name": "mglaman",
-                    "homepage": "https://www.drupal.org/user/2416470"
                 },
                 {
                     "name": "rszrama",
@@ -3442,27 +3436,34 @@
         },
         {
             "name": "drupal/csv_importer",
-            "version": "1.16.0",
-            "version_normalized": "1.16.0.0",
+            "version": "2.4.0",
+            "version_normalized": "2.4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/csv_importer.git",
-                "reference": "8.x-1.16"
+                "reference": "8.x-2.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/csv_importer-8.x-1.16.zip",
-                "reference": "8.x-1.16",
-                "shasum": "8320887e22132375bc7fd65e78d57ad4e7acea3d"
+                "url": "https://ftp.drupal.org/files/projects/csv_importer-8.x-2.4.zip",
+                "reference": "8.x-2.4",
+                "shasum": "df81108c671b375da3ec9b60ae11cad42f276f4b"
             },
             "require": {
-                "drupal/core": "^8.8 || ^9 || ^10"
+                "drupal/core": "^10 || ^11"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "drupal/coder": "^8.3",
+                "phpro/grumphp": "^2.9",
+                "squizlabs/php_codesniffer": "^3.11",
+                "symfony/yaml": "^7.2"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.16",
-                    "datestamp": "1680596956",
+                    "version": "8.x-2.4",
+                    "datestamp": "1787428895",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3487,8 +3488,12 @@
             "authors": [
                 {
                     "name": "Lasha Badashvili",
-                    "homepage": "https://www.drupal.org/user/3382242",
+                    "homepage": "https://www.drupal.org/user/3555229",
                     "email": "lashabp@gmail.com"
+                },
+                {
+                    "name": "lashabp",
+                    "homepage": "https://www.drupal.org/user/3382242"
                 }
             ],
             "description": "CSV Importer.",
@@ -3738,41 +3743,43 @@
         },
         {
             "name": "drupal/email_registration",
-            "version": "1.4.0",
-            "version_normalized": "1.4.0.0",
+            "version": "2.0.0-rc9",
+            "version_normalized": "2.0.0.0-RC9",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/email_registration.git",
-                "reference": "8.x-1.4"
+                "reference": "2.0.0-rc9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/email_registration-8.x-1.4.zip",
-                "reference": "8.x-1.4",
-                "shasum": "fe7a91b858a98533fc1d7550b0917fc80523f186"
+                "url": "https://ftp.drupal.org/files/projects/email_registration-2.0.0-rc9.zip",
+                "reference": "2.0.0-rc9",
+                "shasum": "218e8dbd6c524d7e1b6bb1f4de4fdb10c61cf884"
             },
             "require": {
-                "drupal/core": "^9.1 || ^10"
-            },
-            "conflict": {
-                "drupal/commerce": "<2.12"
+                "drupal/core": "^9.5 || ^10 || ^11"
             },
             "require-dev": {
-                "drupal/commerce": "^2.0",
+                "drupal/commerce": "^3.0",
                 "drupal/token": "*"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.4",
-                    "datestamp": "1700548925",
+                    "version": "2.0.0-rc9",
+                    "datestamp": "1787842851",
                     "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
+                        "status": "not-covered",
+                        "message": "RC releases are not covered by Drupal security advisories."
                     }
                 }
             },
             "installation-source": "source",
+            "autoload": {
+                "psr-4": {
+                    "Drupal\\email_registration\\Component\\": "lib"
+                }
+            },
             "notification-url": "https://packages.drupal.org/8/downloads",
             "license": [
                 "GPL-2.0-or-later"
@@ -3799,7 +3806,7 @@
                     "role": "Maintainer"
                 },
                 {
-                    "name": "Grevil",
+                    "name": "grevil",
                     "homepage": "https://www.drupal.org/user/3668491"
                 },
                 {
@@ -4305,6 +4312,59 @@
             "install-path": "../../web/modules/contrib/feeds"
         },
         {
+            "name": "drupal/feeds_para_mapper",
+            "version": "1.4.0",
+            "version_normalized": "1.4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/feeds_para_mapper.git",
+                "reference": "8.x-1.4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/feeds_para_mapper-8.x-1.4.zip",
+                "reference": "8.x-1.4",
+                "shasum": "795c5e04903adc3c81bc4ff4d6a7b17378320899"
+            },
+            "require": {
+                "drupal/core": "^10.1 || ^11",
+                "drupal/feeds": "^3.0",
+                "drupal/paragraphs": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.4",
+                    "datestamp": "1758806104",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "hussein-elhussein",
+                    "homepage": "https://www.drupal.org/user/3522231"
+                },
+                {
+                    "name": "joseph.olstad",
+                    "homepage": "https://www.drupal.org/user/1321830"
+                }
+            ],
+            "description": "Allows mapping to Paragraphs fields.",
+            "homepage": "https://www.drupal.org/project/feeds_para_mapper",
+            "support": {
+                "source": "https://git.drupalcode.org/project/feeds_para_mapper"
+            },
+            "install-path": "../../web/modules/contrib/feeds_para_mapper"
+        },
+        {
             "name": "drupal/feeds_tamper",
             "version": "2.0.0-rc1",
             "version_normalized": "2.0.0.0-RC1",
@@ -4381,21 +4441,21 @@
         },
         {
             "name": "drupal/field_group",
-            "version": "3.6.0",
-            "version_normalized": "3.6.0.0",
+            "version": "4.0.0",
+            "version_normalized": "4.0.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/field_group.git",
-                "reference": "8.x-3.6"
+                "reference": "4.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/field_group-8.x-3.6.zip",
-                "reference": "8.x-3.6",
-                "shasum": "427c0a65dc1936e69e60c120776056cfe5b43e86"
+                "url": "https://ftp.drupal.org/files/projects/field_group-4.0.0.zip",
+                "reference": "4.0.0",
+                "shasum": "d3ff81d8a64b6ac392989b668cfa417be5101642"
             },
             "require": {
-                "drupal/core": "^9.2 || ^10 || ^11"
+                "drupal/core": "^10.3 || ^11"
             },
             "require-dev": {
                 "drupal/jquery_ui_accordion": "*"
@@ -4403,8 +4463,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-3.6",
-                    "datestamp": "1722672510",
+                    "version": "4.0.0",
+                    "datestamp": "1745478894",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4460,27 +4520,27 @@
         },
         {
             "name": "drupal/fontawesome",
-            "version": "2.26.0",
-            "version_normalized": "2.26.0.0",
+            "version": "3.0.0",
+            "version_normalized": "3.0.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/fontawesome.git",
-                "reference": "8.x-2.26"
+                "reference": "3.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/fontawesome-8.x-2.26.zip",
-                "reference": "8.x-2.26",
-                "shasum": "22e67458e1ebc274c3a8b494ce2c4056a3d2af29"
+                "url": "https://ftp.drupal.org/files/projects/fontawesome-3.0.0.zip",
+                "reference": "3.0.0",
+                "shasum": "48102613a7cb6791db4d50c0ffe8604cdb29623f"
             },
             "require": {
-                "drupal/core": "^9.4 || ^10"
+                "drupal/core": "^10.2 || ^11.0"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-2.26",
-                    "datestamp": "1688063477",
+                    "version": "3.0.0",
+                    "datestamp": "1737497622",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4488,7 +4548,7 @@
                 },
                 "drush": {
                     "services": {
-                        "drush.services.yml": "^9 || ^10 || ^11"
+                        "drush.services.yml": "^12 || ^13"
                     }
                 }
             },
@@ -4499,7 +4559,7 @@
             ],
             "authors": [
                 {
-                    "name": "Daniel.Moberly",
+                    "name": "daniel.moberly",
                     "homepage": "https://www.drupal.org/user/1160788"
                 },
                 {
@@ -16846,6 +16906,89 @@
                 }
             ],
             "install-path": "../symfony/polyfill-php84"
+        },
+        {
+            "name": "symfony/polyfill-php86",
+            "version": "v1.41.0",
+            "version_normalized": "1.41.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php86.git",
+                "reference": "6bc356ed3d8dbfeea8f0de235e34d670704e880e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php86/zipball/6bc356ed3d8dbfeea8f0de235e34d670704e880e",
+                "reference": "6bc356ed3d8dbfeea8f0de235e34d670704e880e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "time": "2026-07-02T13:42:24+00:00",
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php86\\": ""
+                },
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 8.6+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-php86/tree/v1.41.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "install-path": "../symfony/polyfill-php86"
         },
         {
             "name": "symfony/process",
